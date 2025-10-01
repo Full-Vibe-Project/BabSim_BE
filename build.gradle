@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.2.8' // 최신 안정 버전으로 업데이트
+    id 'org.springframework.boot' version '3.2.8'
     id 'io.spring.dependency-management' version '1.1.5'
 }
 
@@ -14,7 +14,6 @@ java {
     }
 }
 
-// Lombok 설정
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -25,7 +24,6 @@ repositories {
     mavenCentral()
 }
 
-// Testcontainers 버전 관리
 ext {
     set('testcontainersVersion', "1.19.7")
 }
@@ -37,6 +35,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis' // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-actuator' // Monitoring
+
+    // Monitoring
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
@@ -62,7 +65,6 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-// Testcontainers 버전 관리를 위한 BOM(Bill of Materials) 설정
 dependencyManagement {
     imports {
         mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"

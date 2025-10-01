@@ -1,3 +1,63 @@
 spring:
   application:
     name: babsim-backend
+  # ===============================
+  # =       Database (MySQL)      =
+  # ===============================
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # AWS RDS 엔드포인트 또는 로컬 DB 주소 (환경 변수 사용)
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update # 개발 초기에는 update, 운영에서는 validate 또는 none 사용
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    defer-datasource-initialization: true
+
+  # ===============================
+  # =         Redis (NoSQL)       =
+  # ===============================
+  data:
+    redis:
+      # AWS ElastiCache 또는 로컬 Redis 호스트 (환경 변수 사용)
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  cache:
+    type: redis # Spring Cache의 기본 저장소로 Redis 사용
+
+# ===============================
+# =      Swagger (OpenAPI)      =
+# ===============================
+springdoc:
+  version: v1.0.0
+  title: '밥심(BabSim) API'
+  description: 'AI 기반 헬스케어 식단 관리 서비스 API 명세서'
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  swagger-ui:
+    path: /swagger-ui.html # Swagger UI 경로
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /api-docs
+
+# ===============================
+# =   Monitoring (Prometheus)   =
+# ===============================
+management:
+  endpoints:
+    web:
+      exposure:
+        # prometheus 엔드포인트를 웹으로 노출
+        include: prometheus, health, info
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
