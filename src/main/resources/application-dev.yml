@@ -1,0 +1,35 @@
+# ==================================================
+# = Spring Profile for Development/Production Env  =
+# =      (Activate with --spring.profiles.active=dev)      =
+# ==================================================
+
+spring:
+  # ===============================
+  # =       Database (MySQL)      =
+  # ===============================
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # AWS RDS 엔드포인트 또는 외부 DB 주소 (환경 변수 사용)
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate # 운영 환경에서는 validate 또는 none 권장
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect # MySQL 방언 설정
+
+  # ===============================
+  # =      Redis (Enabled)        =
+  # ===============================
+  data:
+    redis:
+      # dev 프로필에서 Redis 활성화
+      enabled: true
+      # AWS ElastiCache 또는 외부 Redis 호스트 (환경 변수 사용)
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+  cache:
+    # dev 프로필에서 cache 저장소로 Redis 사용
+    type: redis

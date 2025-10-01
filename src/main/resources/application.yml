@@ -1,34 +1,35 @@
 spring:
   application:
     name: babsim-backend
+
   # ===============================
-  # =       Database (MySQL)      =
+  # =  Database (Default: H2)     =
   # ===============================
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    # AWS RDS 엔드포인트 또는 로컬 DB 주소 (환경 변수 사용)
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb # 로컬에서는 H2 인메모리 DB 사용
+    username: sa
+    password:
   jpa:
     hibernate:
-      ddl-auto: update # 개발 초기에는 update, 운영에서는 validate 또는 none 사용
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
         show_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
     defer-datasource-initialization: true
 
   # ===============================
-  # =         Redis (NoSQL)       =
+  # =   Redis (Default: Disabled) =
   # ===============================
   data:
     redis:
-      # AWS ElastiCache 또는 로컬 Redis 호스트 (환경 변수 사용)
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
+      # 기본적으로 Redis 비활성화. dev, prod 프로필에서 활성화.
+      enabled: false
   cache:
-    type: redis # Spring Cache의 기본 저장소로 Redis 사용
+    # 로컬에서는 simple cache 사용
+    type: simple
 
 # ===============================
 # =      Swagger (OpenAPI)      =
@@ -40,7 +41,7 @@ springdoc:
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
   swagger-ui:
-    path: /swagger-ui.html # Swagger UI 경로
+    path: /swagger-ui.html
     tags-sorter: alpha
     operations-sorter: alpha
   api-docs:
@@ -53,7 +54,6 @@ management:
   endpoints:
     web:
       exposure:
-        # prometheus 엔드포인트를 웹으로 노출
         include: prometheus, health, info
   endpoint:
     health:
