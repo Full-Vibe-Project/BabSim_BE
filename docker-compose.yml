@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # ===============================
+  # =      MySQL Database         =
+  # ===============================
+  mysql:
+    image: mysql:8.0
+    container_name: babsim-mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: babsim
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      TZ: Asia/Seoul
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./db/mysql_data:/var/lib/mysql
+
+  # ===============================
+  # =         Redis Cache         =
+  # ===============================
+  redis:
+    image: redis:latest
+    container_name: babsim-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./db/redis_data:/data
