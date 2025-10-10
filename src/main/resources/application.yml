@@ -1,35 +1,13 @@
 spring:
   application:
     name: babsim-backend
-
   # ===============================
-  # =  Database (Default: H2)     =
+  # =  Default Profile Activation   =
   # ===============================
-  datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testdb # 로컬에서는 H2 인메모리 DB 사용
-    username: sa
-    password:
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
-        show_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
-    defer-datasource-initialization: true
-
-  # ===============================
-  # =   Redis (Default: Disabled) =
-  # ===============================
-  data:
-    redis:
-      # 기본적으로 Redis 비활성화. dev, prod 프로필에서 활성화.
-      enabled: false
-  cache:
-    # 로컬에서는 simple cache 사용
-    type: simple
+  profiles:
+    # 기본적으로 local 프로필을 활성화합니다.
+    # 다른 환경에서 실행하려면 --spring.profiles.active=dev 와 같이 명시적으로 프로필을 지정해야 합니다.
+    active: local
 
 # ===============================
 # =      Swagger (OpenAPI)      =
