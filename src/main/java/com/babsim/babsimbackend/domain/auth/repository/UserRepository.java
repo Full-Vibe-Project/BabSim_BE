@@ -1,11 +1,16 @@
 package com.babsim.babsimbackend.domain.auth.repository;
 
 import com.babsim.babsimbackend.domain.auth.entity.User;
+import java.util.Optional;
+import java.util.UUID;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+public interface UserRepository extends JpaRepository<User, UUID> {
 
-// AI 생성: 사용자 데이터 접근 리포지토리
-public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByEmail(String email);
+	// 건강상태까지 한방에 조회하고 싶을 때 사용 (N+1 회피)
+	@EntityGraph(attributePaths = {"userHealthConditions", "userHealthConditions.healthCondition"})
+	Optional<User> findWithHealthConditionsById(UUID id);
+
+	boolean existsByNameAndAge(String name, Integer age);
 }

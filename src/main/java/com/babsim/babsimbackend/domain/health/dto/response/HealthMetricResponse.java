@@ -1,6 +1,5 @@
 package com.babsim.babsimbackend.domain.health.dto.response;
 
-import com.babsim.babsimbackend.domain.health.entity.HealthMetric;
 import lombok.Builder;
 import lombok.Getter;
 

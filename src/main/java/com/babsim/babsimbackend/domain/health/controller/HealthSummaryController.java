@@ -2,7 +2,6 @@ package com.babsim.babsimbackend.domain.health.controller;
 
 import com.babsim.babsimbackend.common.dto.BaseResponse;
 import com.babsim.babsimbackend.domain.health.dto.response.HealthSummaryResponse;
-import com.babsim.babsimbackend.domain.health.enums.PeriodType;
 import com.babsim.babsimbackend.domain.health.service.HealthSummaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

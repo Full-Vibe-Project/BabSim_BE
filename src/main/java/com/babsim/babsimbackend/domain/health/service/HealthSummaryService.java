@@ -1,7 +1,7 @@
 package com.babsim.babsimbackend.domain.health.service;
 
 import com.babsim.babsimbackend.domain.health.dto.response.HealthSummaryResponse;
-import com.babsim.babsimbackend.domain.health.enums.PeriodType;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

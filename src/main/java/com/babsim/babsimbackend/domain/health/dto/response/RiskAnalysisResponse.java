@@ -1,6 +1,5 @@
 package com.babsim.babsimbackend.domain.health.dto.response;
 
-import com.babsim.babsimbackend.domain.health.enums.RiskLevel;
 import lombok.Builder;
 import lombok.Getter;
 

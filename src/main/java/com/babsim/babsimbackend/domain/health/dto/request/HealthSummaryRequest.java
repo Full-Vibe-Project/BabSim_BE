@@ -1,6 +1,5 @@
 package com.babsim.babsimbackend.domain.health.dto.request;
 
-import com.babsim.babsimbackend.domain.health.enums.PeriodType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
