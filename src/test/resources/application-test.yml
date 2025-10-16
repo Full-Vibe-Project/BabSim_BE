@@ -1,0 +1,33 @@
+# ==================================================
+# =      Spring Profile for Test Environment       =
+# = (Activate with @ActiveProfiles("test"))      =
+# ==================================================
+
+spring:
+  # ===============================
+  # =     Database (H2 In-Memory)   =
+  # ===============================
+  datasource:
+    driver-class-name: org.h2.Driver
+    # H2 인메모리 데이터베이스를 사용합니다. DB 이름은 babsim_test로 지정합니다.
+    url: jdbc:h2:mem:babsim_test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      # 테스트 환경에서는 매번 스키마를 생성하고 삭제하여 테스트 독립성을 보장합니다.
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect # H2 방언 설정
+        format_sql: true
+        show_sql: true
+    defer-datasource-initialization: true
+
+  # ===============================
+  # =     Redis (Disabled)        =
+  # ===============================
+  # 테스트 환경에서는 외부 의존성을 줄이기 위해 Redis를 비활성화하고 simple cache를 사용합니다.
+  cache:
+    type: simple

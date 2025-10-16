@@ -3,7 +3,7 @@ package com.babsim.babsimbackend.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-// AI 생성: JPA 설정
+// AI 생성: JPA Auditing 기능을 활성화하기 위한 설정 클래스
 @Configuration
 @EnableJpaAuditing
 public class JpaConfig {

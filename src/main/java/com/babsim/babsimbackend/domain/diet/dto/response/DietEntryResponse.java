@@ -26,7 +26,7 @@ public class DietEntryResponse {
                 .id(dietEntry.getId())
                 .mealType(dietEntry.getMealType())
                 .foodName(dietEntry.getFood().getName())
-                .calories(dietEntry.getFood().getCalories())
+//                .calories(dietEntry.getFood().getCalories())
                 .build();
     }
 }
