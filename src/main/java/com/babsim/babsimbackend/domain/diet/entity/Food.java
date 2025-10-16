@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 public class Food {
 
     @Id
-    @Column(name = "code", nullable = false, length = 30)
+    @Column(name = "code", nullable = false, length = 30, unique = true)
     private String code;
 
     @Column(name = "name", length = 100)
