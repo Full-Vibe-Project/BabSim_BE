@@ -3,6 +3,7 @@ package com.babsim.babsimbackend.domain.user.controller;
 import com.babsim.babsimbackend.domain.user.dto.request.UserDto;
 import com.babsim.babsimbackend.domain.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -43,7 +44,10 @@ public class UserController {
 
   @Operation(summary = "사용자 목록 조회", description = "모든 사용자의 목록을 페이지 단위로 조회합니다.")
   @GetMapping
-  public ResponseEntity<Page<UserDto.Response>> list(Pageable pageable) {
+  public ResponseEntity<Page<UserDto.Response>> list(
+	  @Parameter(description = "페이지네이션 정보 (page, size, sort). 예: sort=createdAt,desc",
+		  example = "page=0&size=10&sort=id,asc")
+	  Pageable pageable) {
     return ResponseEntity.ok(userService.list(pageable));
   }
 

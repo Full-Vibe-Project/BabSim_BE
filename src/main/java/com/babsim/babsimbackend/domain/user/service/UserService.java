@@ -25,7 +25,7 @@ public class UserService {
 		final User user = User.builder()
 			.name(req.name())
 			.age(req.age())
-			.sex(req.sex())
+			.gender(req.gender())
 			.height(req.height())
 			.weight(req.weight())
 			.goal(req.goal())
@@ -66,7 +66,7 @@ public class UserService {
 			u.getId(),
 			u.getName(),
 			u.getAge(),
-			u.getSex(),
+			u.getGender(),
 			u.getHeight(),
 			u.getWeight(),
 			u.getGoal(),

@@ -2,6 +2,7 @@ package com.babsim.babsimbackend.domain.user.service;
 
 import com.babsim.babsimbackend.domain.user.dto.request.UserDto;
 import com.babsim.babsimbackend.domain.user.entity.User;
+import com.babsim.babsimbackend.domain.user.enums.Gender;
 import com.babsim.babsimbackend.domain.user.enums.GoalType;
 import com.babsim.babsimbackend.domain.user.exception.UserNotFoundException;
 import com.babsim.babsimbackend.domain.user.repository.UserRepository;
@@ -28,7 +29,7 @@ class UserServiceTest {
 
 	@Test
 	void create_returns_uuid_and_maps_fields() throws Exception {
-		var req = new UserDto.Create("홍길동", 29, 'M', new BigDecimal("175.2"), new BigDecimal("71.5"), GoalType.GENERAL, null);
+		var req = new UserDto.Create("홍길동", 29, Gender.MALE, new BigDecimal("175.2"), new BigDecimal("71.5"), GoalType.GENERAL, null);
 
 		when(userRepository.save(any(User.class))).thenAnswer(inv -> {
 			User u = inv.getArgument(0);
@@ -51,7 +52,7 @@ class UserServiceTest {
 
 	@Test
 	void update_changes_only_non_null_fields() throws Exception {
-		var existing = User.builder().name("이전").age(20).sex('F').goal(GoalType.GENERAL).build();
+		var existing = User.builder().name("이전").age(20).gender(Gender.FEMALE).goal(GoalType.GENERAL).build();
 		setId(existing, UUID.randomUUID());
 		when(userRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
 
@@ -61,6 +62,7 @@ class UserServiceTest {
 		assertThat(existing.getName()).isEqualTo("새이름");
 		assertThat(existing.getGoal()).isEqualTo(GoalType.WEIGHT_GAIN);
 		assertThat(existing.getAge()).isEqualTo(20);
+		assertThat(existing.getGender()).isEqualTo(Gender.FEMALE);
 		assertThat(existing.getNotionAccessToken()).isEqualTo("tok");
 	}
 

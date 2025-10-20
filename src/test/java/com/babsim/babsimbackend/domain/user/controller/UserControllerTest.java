@@ -25,7 +25,7 @@ class UserControllerTest {
 	void end_to_end_crud() throws Exception {
 		// CREATE
 		String body = """
-        { "name":"홍길동", "age":29, "sex":"M", "goal":"GENERAL" }
+        { "name":"홍길동", "age":29, "gender":"MALE", "goal":"GENERAL" }
         """;
 		var createRes = mvc.perform(post("/api/v1/users")
 				.contentType(MediaType.APPLICATION_JSON)

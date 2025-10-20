@@ -2,6 +2,7 @@ package com.babsim.babsimbackend.domain.user.repository;
 
 import com.babsim.babsimbackend.domain.user.dto.request.UserDto;
 import com.babsim.babsimbackend.domain.user.entity.User;
+import com.babsim.babsimbackend.domain.user.enums.Gender;
 import com.babsim.babsimbackend.domain.user.enums.GoalType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,7 @@ class UserRepositoryTest {
 		var u = User.builder()
 			.name("홍길동")
 			.age(29)
-			.sex('M')
+			.gender(Gender.MALE)
 			.height(new BigDecimal("175.2"))
 			.weight(new BigDecimal("71.5"))
 			.goal(GoalType.GENERAL)

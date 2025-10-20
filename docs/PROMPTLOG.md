@@ -253,3 +253,18 @@
 - **Prompt**: 다른사람 코드는 일단 건들지 마 (For now, don't touch other people's code.)
 - **Result**: ✅ 성공
 - **Details**: 지침에 따라, 이전에 계획했던 `diet` 도메인의 DTO 리팩토링 작업을 중단했습니다.
+
+---
+
+## 🗓️ 2025-10-20
+
+- **Prompt**: 지금 User 엔티티에서 성별을 Character로 표시하고 있는데, 이걸 Enum으로 바꾸고싶어, 이걸 바꾸고 연관된 다른 객체에서도 바꾸는 리팩토링을 수행해봐
+- **Result**: ✅ 성공
+- **Details**:
+    1. `domain/user/enums`에 `Gender.java` Enum을 생성했습니다.
+    2. `User` 엔티티를 리팩토링하여 `sex: Character`를 `@Enumerated(EnumType.STRING)`이 적용된 `gender: Gender`로 변경했습니다.
+    3. `UserDto.java`의 모든 레코드(Create, Update, Response)가 새로운 `Gender` Enum을 사용하도록 업데이트했습니다.
+    4. `UserService.java`의 `create`, `toResponse` 메서드가 `gender` Enum을 처리하도록 업데이트했습니다.
+    5. 관련 테스트 파일들(`UserControllerTest`, `UserRepositoryTest`, `UserServiceTest`)이 새로운 Enum과 필드명을 사용하도록 수정했습니다.
+    6. `./gradlew build`를 실행하여 모든 변경 사항이 성공적으로 적용되었음을 확인했습니다.
+    7. 사용자의 추가 요청에 따라 `Gender` Enum의 표시 이름을 한글에서 영문("Male", "Female")으로 변경하고, 빌드를 통해 재검증했습니다.

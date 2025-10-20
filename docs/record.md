@@ -100,3 +100,16 @@
 - **`user` 도메인 변경 후속 조치**:
     - 사용자가 직접 `domain/auth`를 `domain/user`로 변경한 후, 이로 인해 발생한 `UserControllerTest`의 API 경로 불일치 오류를 해결했습니다.
 - **검증**: 모든 리팩토링 및 수정 작업 후 `./gradlew clean test`를 실행하여 전체 테스트가 성공적으로 통과하는 것을 최종 확인했습니다.
+
+---
+
+## 🗓️ 2025-10-20
+
+### User 도메인 `gender` 필드 리팩토링 및 API 문서 개선
+- **목적**: `User` 엔티티의 성별(`sex`) 필드 타입을 `Character`에서 `Gender` Enum으로 변경하여 타입 안정성을 높이고, 관련 API 문서를 보강했습니다.
+- **주요 변경 사항**:
+    1.  **`Gender` Enum 생성**: `domain/user/enums` 경로에 `MALE`, `FEMALE` 값을 갖는 `Gender.java`를 추가했습니다.
+    2.  **엔티티/DTO/서비스 리팩토링**: `User` 엔티티, `UserDto`, `UserService`의 `sex` 필드를 모두 `gender` Enum 타입으로 변경하고, 데이터베이스에는 문자열로 저장되도록 `@Enumerated(EnumType.STRING)`을 적용했습니다.
+    3.  **테스트 코드 수정**: 리팩토링된 코드에 맞춰 관련된 모든 테스트 코드(`UserControllerTest`, `UserRepositoryTest`, `UserServiceTest`)를 수정했습니다.
+    4.  **API 문서 개선**: `UserDto`와 `UserController`에 `@Schema`, `@Parameter` 어노테이션을 추가하여 Swagger 문서의 가독성과 명확성을 향상시켰습니다.
+- **검증**: `./gradlew build` 명령을 통해 모든 변경사항이 기존 기능에 영향을 주지 않으며, 모든 테스트가 성공적으로 통과하는 것을 확인했습니다.

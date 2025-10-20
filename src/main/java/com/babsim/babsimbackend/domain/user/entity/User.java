@@ -2,6 +2,7 @@ package com.babsim.babsimbackend.domain.user.entity;
 
 import com.babsim.babsimbackend.common.entity.BaseEntity;
 import com.babsim.babsimbackend.domain.user.dto.request.UserDto;
+import com.babsim.babsimbackend.domain.user.enums.Gender;
 import com.babsim.babsimbackend.domain.user.enums.GoalType;
 import com.babsim.babsimbackend.domain.health.entity.UserHealthCondition;
 
@@ -45,7 +46,8 @@ public class User extends BaseEntity {
 
 	private Integer age;
 
-	private Character sex;
+	@Enumerated(EnumType.STRING)
+	private Gender gender;
 
 	@Column(precision = 5, scale = 2)
 	private BigDecimal height;
@@ -62,11 +64,11 @@ public class User extends BaseEntity {
 	private List<UserHealthCondition> userHealthConditions = new ArrayList<>();
 
 	@Builder
-	public User(String name, Integer age, Character sex, BigDecimal height, BigDecimal weight, GoalType goal,
+	public User(String name, Integer age, Gender gender, BigDecimal height, BigDecimal weight, GoalType goal,
 		String notionAccessToken) {
 		this.name = name;
 		this.age = age;
-		this.sex = sex;
+		this.gender = gender;
 		this.height = height;
 		this.weight = weight;
 		this.goal = goal;
@@ -80,8 +82,8 @@ public class User extends BaseEntity {
 		if (request.age() != null) {
 			this.age = request.age();
 		}
-		if (request.sex() != null) {
-			this.sex = request.sex();
+		if (request.gender() != null) {
+			this.gender = request.gender();
 		}
 		if (request.height() != null) {
 			this.height = request.height();
