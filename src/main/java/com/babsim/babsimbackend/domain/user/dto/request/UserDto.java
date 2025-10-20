@@ -1,6 +1,6 @@
-package com.babsim.babsimbackend.domain.auth.dto.request;
+package com.babsim.babsimbackend.domain.user.dto.request;
 
-import com.babsim.babsimbackend.domain.auth.enums.GoalType;
+import com.babsim.babsimbackend.domain.user.enums.GoalType;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

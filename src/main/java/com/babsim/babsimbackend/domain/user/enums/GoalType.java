@@ -1,4 +1,4 @@
-package com.babsim.babsimbackend.domain.auth.enums;
+package com.babsim.babsimbackend.domain.user.enums;
 
 public enum GoalType {
 	WEIGHT_LOSS,

@@ -37,7 +37,8 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/api-docs/**",
-                    "/management/**" 
+                    "/management/**",
+					"/api/v1/users/**"
                 ).permitAll()
                 // 사용자 인증(회원가입/로그인) API는 허용
                 .requestMatchers("/auth/**").permitAll()

@@ -1,4 +1,4 @@
-package com.babsim.babsimbackend.domain.auth.dto.request;
+package com.babsim.babsimbackend.domain.user.dto.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

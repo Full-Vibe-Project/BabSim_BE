@@ -1,4 +1,4 @@
-package com.babsim.babsimbackend.domain.auth.exception;
+package com.babsim.babsimbackend.domain.user.exception;
 
 import com.babsim.babsimbackend.common.exception.BusinessException;
 import com.babsim.babsimbackend.common.exception.ErrorCode;

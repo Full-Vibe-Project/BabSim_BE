@@ -1,7 +1,8 @@
-package com.babsim.babsimbackend.domain.auth.repository;
+package com.babsim.babsimbackend.domain.user.repository;
 
-import com.babsim.babsimbackend.domain.auth.entity.User;
-import com.babsim.babsimbackend.domain.auth.enums.GoalType;
+import com.babsim.babsimbackend.domain.user.dto.request.UserDto;
+import com.babsim.babsimbackend.domain.user.entity.User;
+import com.babsim.babsimbackend.domain.user.enums.GoalType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,8 @@ class UserRepositoryTest {
 		assertThat(found.getName()).isEqualTo("홍길동");
 
 		// update (더티체킹)
-		found.changeName("홍길동2");
+		var updateDto = new UserDto.Update("홍길동2", null, null, null, null, null, null);
+		found.update(updateDto);
 		userRepository.flush();
 		var updated = userRepository.findById(saved.getId()).orElseThrow();
 		assertThat(updated.getName()).isEqualTo("홍길동2");

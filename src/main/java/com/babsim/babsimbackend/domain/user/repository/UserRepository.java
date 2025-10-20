@@ -1,6 +1,6 @@
-package com.babsim.babsimbackend.domain.auth.repository;
+package com.babsim.babsimbackend.domain.user.repository;
 
-import com.babsim.babsimbackend.domain.auth.entity.User;
+import com.babsim.babsimbackend.domain.user.entity.User;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;

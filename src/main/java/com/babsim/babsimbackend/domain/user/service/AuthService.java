@@ -1,8 +1,8 @@
-package com.babsim.babsimbackend.domain.auth.service;
+package com.babsim.babsimbackend.domain.user.service;
 
-import com.babsim.babsimbackend.domain.auth.dto.request.LoginRequest;
-import com.babsim.babsimbackend.domain.auth.dto.request.RegisterRequest;
-import com.babsim.babsimbackend.domain.auth.dto.response.AuthResponse;
+import com.babsim.babsimbackend.domain.user.dto.request.LoginRequest;
+import com.babsim.babsimbackend.domain.user.dto.request.RegisterRequest;
+import com.babsim.babsimbackend.domain.user.dto.response.AuthResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,8 @@
-package com.babsim.babsimbackend.domain.auth.entity;
+package com.babsim.babsimbackend.domain.user.entity;
 
 import com.babsim.babsimbackend.common.entity.BaseEntity;
-import com.babsim.babsimbackend.domain.auth.enums.GoalType;
+import com.babsim.babsimbackend.domain.user.dto.request.UserDto;
+import com.babsim.babsimbackend.domain.user.enums.GoalType;
 import com.babsim.babsimbackend.domain.health.entity.UserHealthCondition;
 
 import jakarta.persistence.Column;
@@ -72,11 +73,27 @@ public class User extends BaseEntity {
 		this.notionAccessToken = notionAccessToken;
 	}
 
-	public void changeName(String name) { this.name = name; }
-	public void changeAge(Integer age) { this.age = age; }
-	public void changeSex(Character sex) { this.sex = sex; }
-	public void changeHeight(BigDecimal height) { this.height = height; }
-	public void changeWeight(BigDecimal weight) { this.weight = weight; }
-	public void changeGoal(GoalType goal) { this.goal = goal; }
-	public void changeNotionAccessToken(String token) { this.notionAccessToken = token; }
+	public void update(UserDto.Update request) {
+		if (request.name() != null) {
+			this.name = request.name();
+		}
+		if (request.age() != null) {
+			this.age = request.age();
+		}
+		if (request.sex() != null) {
+			this.sex = request.sex();
+		}
+		if (request.height() != null) {
+			this.height = request.height();
+		}
+		if (request.weight() != null) {
+			this.weight = request.weight();
+		}
+		if (request.goal() != null) {
+			this.goal = request.goal();
+		}
+		if (request.notionAccessToken() != null) {
+			this.notionAccessToken = request.notionAccessToken();
+		}
+	}
 }

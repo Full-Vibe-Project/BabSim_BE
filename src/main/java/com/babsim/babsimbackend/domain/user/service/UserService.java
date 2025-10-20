@@ -1,4 +1,4 @@
-package com.babsim.babsimbackend.domain.auth.service;
+package com.babsim.babsimbackend.domain.user.service;
 
 import java.util.UUID;
 
@@ -7,10 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.babsim.babsimbackend.domain.auth.dto.request.UserDto;
-import com.babsim.babsimbackend.domain.auth.entity.User;
-import com.babsim.babsimbackend.domain.auth.exception.UserNotFoundException;
-import com.babsim.babsimbackend.domain.auth.repository.UserRepository;
+import com.babsim.babsimbackend.domain.user.dto.request.UserDto;
+import com.babsim.babsimbackend.domain.user.entity.User;
+import com.babsim.babsimbackend.domain.user.exception.UserNotFoundException;
+import com.babsim.babsimbackend.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -51,37 +51,14 @@ public class UserService {
 	public void update(UUID id, UserDto.Update req) {
 		final User u = userRepository.findById(id)
 			.orElseThrow(UserNotFoundException::new);
-
-		// 필요한 필드만 부분 수정
-		if (req.name() != null) {
-			u.changeName(req.name());
-		}
-		if (req.age() != null) {
-			u.changeAge(req.age());
-		}
-		if (req.sex() != null) {
-			u.changeSex(req.sex());
-		}
-		if (req.height() != null) {
-			u.changeHeight(req.height());
-		}
-		if (req.weight() != null) {
-			u.changeWeight(req.weight());
-		}
-		if (req.goal() != null) {
-			u.changeGoal(req.goal());
-		}
-		if (req.notionAccessToken() != null) {
-			u.changeNotionAccessToken(req.notionAccessToken());
-		}
+		u.update(req); // 엔티티에 업데이트 위임
 	}
 
 	@Transactional
 	public void delete(UUID id) {
-		if (!userRepository.existsById(id)) {
-			throw new UserNotFoundException();
-		}
-		userRepository.deleteById(id);
+		User user = userRepository.findById(id)
+			.orElseThrow(UserNotFoundException::new);
+		userRepository.delete(user);
 	}
 
 	private UserDto.Response toResponse(User u) {

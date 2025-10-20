@@ -15,7 +15,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-// auth 테스트 용도
 @Entity
 @Table(name = "health_conditions")
 @Getter

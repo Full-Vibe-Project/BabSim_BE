@@ -1,4 +1,4 @@
-package com.babsim.babsimbackend.domain.auth.dto.response;
+package com.babsim.babsimbackend.domain.user.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

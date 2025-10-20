@@ -1,4 +1,4 @@
-package com.babsim.babsimbackend.domain.auth.controller;
+package com.babsim.babsimbackend.domain.user.controller;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ class UserControllerTest {
 		String body = """
         { "name":"홍길동", "age":29, "sex":"M", "goal":"GENERAL" }
         """;
-		var createRes = mvc.perform(post("/api/users")
+		var createRes = mvc.perform(post("/api/v1/users")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(body))
 			.andExpect(status().isCreated())

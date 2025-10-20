@@ -1,11 +1,11 @@
-package com.babsim.babsimbackend.domain.auth.service;
+package com.babsim.babsimbackend.domain.user.service;
 
-import com.babsim.babsimbackend.domain.auth.dto.request.UserDto;
-import com.babsim.babsimbackend.domain.auth.entity.User;
-import com.babsim.babsimbackend.domain.auth.enums.GoalType;
-import com.babsim.babsimbackend.domain.auth.exception.UserNotFoundException;
-import com.babsim.babsimbackend.domain.auth.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.babsim.babsimbackend.domain.user.dto.request.UserDto;
+import com.babsim.babsimbackend.domain.user.entity.User;
+import com.babsim.babsimbackend.domain.user.enums.GoalType;
+import com.babsim.babsimbackend.domain.user.exception.UserNotFoundException;
+import com.babsim.babsimbackend.domain.user.repository.UserRepository;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -67,7 +67,7 @@ class UserServiceTest {
 	@Test
 	void delete_throws_when_not_exists() {
 		UUID id = UUID.randomUUID();
-		when(userRepository.existsById(id)).thenReturn(false);
+		when(userRepository.findById(id)).thenReturn(Optional.empty());
 		assertThatThrownBy(() -> userService.delete(id)).isInstanceOf(UserNotFoundException.class);
 	}
 

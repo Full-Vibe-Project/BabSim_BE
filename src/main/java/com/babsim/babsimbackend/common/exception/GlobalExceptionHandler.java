@@ -36,8 +36,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraint(ConstraintViolationException e, HttpServletRequest req) {
+        var errors = e.getConstraintViolations().stream()
+                .map(cv -> {
+                    String propertyPath = cv.getPropertyPath().toString();
+                    String field = propertyPath.substring(propertyPath.lastIndexOf('.') + 1);
+                    return new ErrorResponse.FieldError(field, cv.getMessage(), cv.getInvalidValue());
+                })
+                .toList();
         var code = ErrorCode.INVALID_INPUT_VALUE;
-        var body = ErrorResponse.of(code.getStatus().value(), code.name(), code.getMessage(), null, req.getRequestURI());
+        var body = ErrorResponse.of(code.getStatus().value(), code.name(), code.getMessage(), errors, req.getRequestURI());
         return ResponseEntity.status(code.getStatus()).body(body);
     }
 
