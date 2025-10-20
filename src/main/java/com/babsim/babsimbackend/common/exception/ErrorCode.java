@@ -19,7 +19,7 @@ public enum ErrorCode {
 
     // Auth
     EMAIL_DUPLICATION(HttpStatus.CONFLICT, "Email is Duplicated"),
-    LOGIN_INPUT_INVALID(HttpStatus.BAD_REQUEST, "Login input is invalid"),
+    LOGIN_INPUT_INVALID(HttpStatus.UNAUTHORIZED, "Invalid login credentials"),
 
     // User
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found");

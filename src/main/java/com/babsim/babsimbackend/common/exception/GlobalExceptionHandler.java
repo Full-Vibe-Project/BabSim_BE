@@ -1,29 +1,72 @@
 package com.babsim.babsimbackend.common.exception;
 
 import com.babsim.babsimbackend.common.dto.ErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-// AI 생성: 전역 예외 처리 핸들러
+import java.util.List;
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
-    protected ResponseEntity<ErrorResponse> handleBusinessException(final BusinessException e) {
-        log.error("handleBusinessException", e);
-        final ErrorCode errorCode = e.getErrorCode();
-        final ErrorResponse response = new ErrorResponse(errorCode);
-        return new ResponseEntity<>(response, errorCode.getStatus());
+    public ResponseEntity<ErrorResponse> handleBusiness(BusinessException e, HttpServletRequest req) {
+        var code = e.getErrorCode();
+        var body = ErrorResponse.of(code.getStatus().value(), code.name(), code.getMessage(), null, req.getRequestURI());
+        return ResponseEntity.status(code.getStatus()).body(body);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException e, HttpServletRequest req) {
+        var errors = e.getBindingResult().getFieldErrors().stream()
+                .map(fe -> new ErrorResponse.FieldError(fe.getField(), fe.getDefaultMessage(), fe.getRejectedValue()))
+                .toList();
+        var code = ErrorCode.INVALID_INPUT_VALUE;
+        var body = ErrorResponse.of(code.getStatus().value(), code.name(), code.getMessage(), errors, req.getRequestURI());
+        return ResponseEntity.status(code.getStatus()).body(body);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraint(ConstraintViolationException e, HttpServletRequest req) {
+        var errors = e.getConstraintViolations().stream()
+                .map(cv -> {
+                    String propertyPath = cv.getPropertyPath().toString();
+                    String field = propertyPath.substring(propertyPath.lastIndexOf('.') + 1);
+                    return new ErrorResponse.FieldError(field, cv.getMessage(), cv.getInvalidValue());
+                })
+                .toList();
+        var code = ErrorCode.INVALID_INPUT_VALUE;
+        var body = ErrorResponse.of(code.getStatus().value(), code.name(), code.getMessage(), errors, req.getRequestURI());
+        return ResponseEntity.status(code.getStatus()).body(body);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleBadBody(HttpMessageNotReadableException e, HttpServletRequest req) {
+        var code = ErrorCode.INVALID_INPUT_VALUE;
+        var body = ErrorResponse.of(code.getStatus().value(), code.name(), code.getMessage(), null, req.getRequestURI());
+        return ResponseEntity.status(code.getStatus()).body(body);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotAllowed(HttpRequestMethodNotSupportedException e, HttpServletRequest req) {
+        var code = ErrorCode.METHOD_NOT_ALLOWED;
+        var body = ErrorResponse.of(code.getStatus().value(), code.name(), code.getMessage(), null, req.getRequestURI());
+        return ResponseEntity.status(code.getStatus()).body(body);
     }
 
     @ExceptionHandler(Exception.class)
-    protected ResponseEntity<ErrorResponse> handleException(Exception e) {
-        log.error("handleException", e);
-        final ErrorResponse response = new ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR);
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ErrorResponse> handleException(Exception e, HttpServletRequest req) {
+        log.error("Unexpected error", e);
+        var code = ErrorCode.INTERNAL_SERVER_ERROR;
+        var body = ErrorResponse.of(code.getStatus().value(), code.name(), code.getMessage(), null, req.getRequestURI());
+        return ResponseEntity.status(code.getStatus()).body(body);
     }
 }
