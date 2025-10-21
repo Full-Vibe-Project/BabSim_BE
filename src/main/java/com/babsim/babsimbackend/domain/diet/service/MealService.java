@@ -33,23 +33,23 @@ public class MealService {
 
     @Transactional
     public MealResponse createMeal(MealCreateRequest request) {
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findById(request.userId())
             .orElseThrow(UserNotFoundException::new);
 
         Meal meal = Meal.builder()
             .user(user)
-            .mealType(request.getMealType())
-            .imageUrl(request.getImageUrl())
+            .mealType(request.mealType())
+            .imageUrl(request.imageUrl())
             .build();
 
-        List<MealFood> mealFoods = request.getFoods().stream()
+        List<MealFood> mealFoods = request.foods().stream()
             .map(foodItem -> {
-                Food food = foodRepository.findById(foodItem.getFoodCode())
-                    .orElseThrow(() -> new FoodNotFoundException(foodItem.getFoodCode()));
+                Food food = foodRepository.findById(foodItem.foodCode())
+                    .orElseThrow(() -> new FoodNotFoundException(foodItem.foodCode()));
                 return MealFood.builder()
                     .meal(meal)
                     .food(food)
-                    .quantity(foodItem.getQuantity())
+                    .quantity(foodItem.quantity())
                     .build();
             })
             .collect(Collectors.toList());
@@ -74,19 +74,19 @@ public class MealService {
         Meal meal = mealRepository.findById(mealId)
             .orElseThrow(() -> new MealNotFoundException(mealId));
 
-        List<MealFood> mealFoods = request.getFoods().stream()
+        List<MealFood> mealFoods = request.foods().stream()
             .map(foodItem -> {
-                Food food = foodRepository.findById(foodItem.getFoodCode())
-                    .orElseThrow(() -> new FoodNotFoundException(foodItem.getFoodCode()));
+                Food food = foodRepository.findById(foodItem.foodCode())
+                    .orElseThrow(() -> new FoodNotFoundException(foodItem.foodCode()));
                 return MealFood.builder()
                     .meal(meal)
                     .food(food)
-                    .quantity(foodItem.getQuantity())
+                    .quantity(foodItem.quantity())
                     .build();
             })
             .collect(Collectors.toList());
 
-        meal.update(request.getMealType(), request.getImageUrl(), mealFoods);
+        meal.update(request.mealType(), request.imageUrl(), mealFoods);
 
         return new MealResponse(meal);
     }

@@ -3,7 +3,6 @@ package com.babsim.babsimbackend.domain.diet.controller;
 import com.babsim.babsimbackend.domain.diet.dto.request.FoodCreateRequest;
 import com.babsim.babsimbackend.domain.diet.dto.response.FoodResponse;
 import com.babsim.babsimbackend.domain.diet.dto.request.FoodUpdateRequest;
-import com.babsim.babsimbackend.domain.diet.entity.Food;
 import com.babsim.babsimbackend.domain.diet.service.FoodService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -41,7 +40,7 @@ class FoodControllerTest {
     @DisplayName("음식 생성을 요청하면 201 Created 상태와 함께 생성된 음식 정보를 반환한다.")
     void givenFoodCreateRequest_whenPostFood_thenReturns201AndFoodResponse() throws Exception {
         // given
-        FoodCreateRequest requestDto = FoodCreateRequest.builder().code("D000001").name("쌀밥").build();
+        FoodCreateRequest requestDto = new FoodCreateRequest("D000001", "쌀밥", 313.0, 69.9, 6.6, 0.9, "210g");
         FoodResponse responseDto = new FoodResponse(requestDto.toEntity());
         given(foodService.createFood(any(FoodCreateRequest.class))).willReturn(responseDto);
 
@@ -57,8 +56,7 @@ class FoodControllerTest {
     void givenFoodCode_whenGetFood_thenReturns200AndFoodResponse() throws Exception {
         // given
         String foodCode = "D000001";
-        Food food = Food.builder().code(foodCode).name("쌀밥").build();
-        FoodResponse responseDto = new FoodResponse(food);
+        FoodResponse responseDto = new FoodResponse(foodCode, "쌀밥", 313.0, 69.9, 6.6, 0.9, "210g");
         given(foodService.findFoodByCode(foodCode)).willReturn(responseDto);
 
         // when & then
@@ -72,9 +70,8 @@ class FoodControllerTest {
     void givenFoodUpdateRequest_whenPutFood_thenReturns200AndUpdatedFoodResponse() throws Exception {
         // given
         String foodCode = "D000001";
-        FoodUpdateRequest requestDto = FoodUpdateRequest.builder().name("현미밥").energy(321.0).build();
-        Food updatedFood = Food.builder().code(foodCode).name("현미밥").energy(321.0).build();
-        FoodResponse responseDto = new FoodResponse(updatedFood);
+        FoodUpdateRequest requestDto = new FoodUpdateRequest("현미밥", 321.0, null, null, null, null);
+        FoodResponse responseDto = new FoodResponse(foodCode, "현미밥", 321.0, 69.9, 6.6, 0.9, "210g");
         given(foodService.updateFood(eq(foodCode), any(FoodUpdateRequest.class))).willReturn(responseDto);
 
         // when & then

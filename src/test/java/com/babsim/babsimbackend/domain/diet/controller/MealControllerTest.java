@@ -16,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -47,10 +48,10 @@ class MealControllerTest {
     void givenMealCreateRequest_whenPostMeal_thenReturns201AndLocationHeader() throws Exception {
         // given
         UUID userId = UUID.randomUUID();
-        MealCreateRequest.FoodItem foodItem = MealCreateRequest.FoodItem.builder().foodCode("D000001").quantity(1).build();
-        MealCreateRequest request = MealCreateRequest.builder().userId(userId).mealType(MealType.LUNCH).foods(List.of(foodItem)).build();
-        Meal mockMeal = Meal.builder().user(null).mealType(MealType.LUNCH).build();
-        MealResponse responseDto = new MealResponse(mockMeal);
+        MealCreateRequest.FoodItem foodItem = new MealCreateRequest.FoodItem("D000001", 1);
+        MealCreateRequest request = new MealCreateRequest(userId, MealType.LUNCH, "http://image.com/lunch.jpg", List.of(foodItem));
+
+        MealResponse responseDto = new MealResponse(1L, MealType.LUNCH, "http://image.com/lunch.jpg", LocalDateTime.now(), Collections.emptyList());
 
         given(mealService.createMeal(any(MealCreateRequest.class))).willReturn(responseDto);
 
@@ -80,11 +81,10 @@ class MealControllerTest {
     void givenMealUpdateRequest_whenPutMeal_thenReturns200AndUpdatedMeal() throws Exception {
         // given
         Long mealId = 1L;
-        MealUpdateRequest.FoodItem foodItem = MealUpdateRequest.FoodItem.builder().foodCode("D000002").quantity(1).build();
-        MealUpdateRequest request = MealUpdateRequest.builder().mealType(MealType.DINNER).foods(List.of(foodItem)).build();
+        MealUpdateRequest.FoodItem foodItem = new MealUpdateRequest.FoodItem("D000002", 1);
+        MealUpdateRequest request = new MealUpdateRequest(MealType.DINNER, null, List.of(foodItem));
 
-        Meal mockMeal = Meal.builder().user(null).mealType(MealType.DINNER).build();
-        MealResponse responseDto = new MealResponse(mockMeal);
+        MealResponse responseDto = new MealResponse(mealId, MealType.DINNER, null, LocalDateTime.now(), Collections.emptyList());
 
         given(mealService.updateMeal(eq(mealId), any(MealUpdateRequest.class))).willReturn(responseDto);
 

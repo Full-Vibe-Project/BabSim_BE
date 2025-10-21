@@ -27,7 +27,7 @@ public class MealController {
     @PostMapping
     public ResponseEntity<MealResponse> createMeal(@RequestBody MealCreateRequest request) {
         MealResponse response = mealService.createMeal(request);
-        return ResponseEntity.created(URI.create("/api/v1/meals/" + response.getId()))
+        return ResponseEntity.created(URI.create("/api/v1/meals/" + response.id()))
             .body(response);
     }
 

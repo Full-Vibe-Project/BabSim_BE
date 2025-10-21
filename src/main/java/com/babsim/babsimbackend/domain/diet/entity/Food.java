@@ -62,11 +62,11 @@ public class Food {
     }
 
     public void update(FoodUpdateRequest dto) {
-        if (dto.getName() != null) this.name = dto.getName();
-        if (dto.getEnergy() != null) this.energy = dto.getEnergy();
-        if (dto.getCarb() != null) this.carb = dto.getCarb();
-        if (dto.getProtein() != null) this.protein = dto.getProtein();
-        if (dto.getFat() != null) this.fat = dto.getFat();
-        if (dto.getWeight() != null) this.weight = dto.getWeight();
+        if (dto.name() != null) this.name = dto.name();
+        if (dto.energy() != null) this.energy = dto.energy();
+        if (dto.carb() != null) this.carb = dto.carb();
+        if (dto.protein() != null) this.protein = dto.protein();
+        if (dto.fat() != null) this.fat = dto.fat();
+        if (dto.weight() != null) this.weight = dto.weight();
     }
 }

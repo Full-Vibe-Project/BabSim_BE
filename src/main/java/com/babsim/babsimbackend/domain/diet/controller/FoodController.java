@@ -25,7 +25,7 @@ public class FoodController {
     @PostMapping
     public ResponseEntity<FoodResponse> createFood(@RequestBody FoodCreateRequest requestDto) {
         FoodResponse responseDto = foodService.createFood(requestDto);
-        return ResponseEntity.created(URI.create("/api/v1/foods/" + responseDto.getCode()))
+        return ResponseEntity.created(URI.create("/api/v1/foods/" + responseDto.code()))
             .body(responseDto);
     }
 
