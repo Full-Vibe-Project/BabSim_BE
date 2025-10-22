@@ -3,7 +3,7 @@ package com.babsim.babsimbackend.domain.diet.controller;
 import com.babsim.babsimbackend.domain.diet.dto.request.MealCreateRequest;
 import com.babsim.babsimbackend.domain.diet.dto.request.MealUpdateRequest;
 import com.babsim.babsimbackend.domain.diet.dto.response.MealResponse;
-import com.babsim.babsimbackend.domain.diet.service.MealService;
+import com.babsim.babsimbackend.domain.diet.service.MealFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +21,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MealController {
 
-    private final MealService mealService;
+    private final MealFacade mealFacade;
 
     @Operation(summary = "식단 정보 생성", description = "새로운 식단 정보를 시스템에 등록합니다.")
     @PostMapping
     public ResponseEntity<MealResponse> createMeal(@RequestBody MealCreateRequest request) {
-        MealResponse response = mealService.createMeal(request);
+        MealResponse response = mealFacade.createMeal(request);
         return ResponseEntity.created(URI.create("/api/v1/meals/" + response.id()))
             .body(response);
     }
@@ -34,21 +34,21 @@ public class MealController {
     @Operation(summary = "사용자 식단 목록 조회", description = "특정 사용자의 모든 식단 정보를 조회합니다.")
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<MealResponse>> getMealsByUserId(@PathVariable UUID userId) {
-        List<MealResponse> responses = mealService.findMealsByUserId(userId);
+        List<MealResponse> responses = mealFacade.findMealsByUserId(userId);
         return ResponseEntity.ok(responses);
     }
 
     @Operation(summary = "식단 정보 수정", description = "특정 ID의 식단 정보를 수정합니다.")
     @PutMapping("/{mealId}")
     public ResponseEntity<MealResponse> updateMeal(@PathVariable Long mealId, @RequestBody MealUpdateRequest request) {
-        MealResponse response = mealService.updateMeal(mealId, request);
+        MealResponse response = mealFacade.updateMeal(mealId, request);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "식단 정보 삭제", description = "특정 ID의 식단 정보를 삭제합니다.")
     @DeleteMapping("/{mealId}")
     public ResponseEntity<Void> deleteMeal(@PathVariable Long mealId) {
-        mealService.deleteMeal(mealId);
+        mealFacade.deleteMeal(mealId);
         return ResponseEntity.noContent().build();
     }
 }

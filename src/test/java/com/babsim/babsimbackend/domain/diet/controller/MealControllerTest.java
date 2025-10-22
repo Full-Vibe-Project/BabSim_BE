@@ -3,9 +3,8 @@ package com.babsim.babsimbackend.domain.diet.controller;
 import com.babsim.babsimbackend.domain.diet.dto.request.MealCreateRequest;
 import com.babsim.babsimbackend.domain.diet.dto.request.MealUpdateRequest;
 import com.babsim.babsimbackend.domain.diet.dto.response.MealResponse;
-import com.babsim.babsimbackend.domain.diet.entity.Meal;
 import com.babsim.babsimbackend.domain.diet.enums.MealType;
-import com.babsim.babsimbackend.domain.diet.service.MealService;
+import com.babsim.babsimbackend.domain.diet.service.MealFacade;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,7 +40,7 @@ class MealControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private MealService mealService;
+    private MealFacade mealFacade;
 
     @Test
     @DisplayName("식단 생성을 요청하면 201 Created 상태와 Location 헤더를 반환한다.")
@@ -53,7 +52,7 @@ class MealControllerTest {
 
         MealResponse responseDto = new MealResponse(1L, MealType.LUNCH, "http://image.com/lunch.jpg", LocalDateTime.now(), Collections.emptyList());
 
-        given(mealService.createMeal(any(MealCreateRequest.class))).willReturn(responseDto);
+        given(mealFacade.createMeal(any(MealCreateRequest.class))).willReturn(responseDto);
 
         // when & then
         mockMvc.perform(post("/api/v1/meals")
@@ -68,7 +67,7 @@ class MealControllerTest {
     void givenUserId_whenGetMeals_thenReturns200AndMealList() throws Exception {
         // given
         UUID userId = UUID.randomUUID();
-        given(mealService.findMealsByUserId(userId)).willReturn(Collections.emptyList());
+        given(mealFacade.findMealsByUserId(userId)).willReturn(Collections.emptyList());
 
         // when & then
         mockMvc.perform(get("/api/v1/meals/user/{userId}", userId))
@@ -86,7 +85,7 @@ class MealControllerTest {
 
         MealResponse responseDto = new MealResponse(mealId, MealType.DINNER, null, LocalDateTime.now(), Collections.emptyList());
 
-        given(mealService.updateMeal(eq(mealId), any(MealUpdateRequest.class))).willReturn(responseDto);
+        given(mealFacade.updateMeal(eq(mealId), any(MealUpdateRequest.class))).willReturn(responseDto);
 
         // when & then
         mockMvc.perform(put("/api/v1/meals/{mealId}", mealId)
@@ -106,6 +105,6 @@ class MealControllerTest {
         mockMvc.perform(delete("/api/v1/meals/{mealId}", mealId))
             .andExpect(status().isNoContent());
 
-        verify(mealService).deleteMeal(mealId);
+        verify(mealFacade).deleteMeal(mealId);
     }
 }
