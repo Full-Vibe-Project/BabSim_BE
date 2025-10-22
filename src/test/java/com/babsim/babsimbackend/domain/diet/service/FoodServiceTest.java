@@ -35,7 +35,7 @@ class FoodServiceTest {
     @DisplayName("새로운 음식 정보를 요청하면 성공적으로 생성하고 결과를 반환해야 한다.")
     void givenFoodCreateRequest_whenCreateFood_thenFoodIsSavedAndReturned() {
         // given
-        FoodCreateRequest requestDto = FoodCreateRequest.builder().code("D000002").name("김치찌개").build();
+        FoodCreateRequest requestDto = new FoodCreateRequest("D000002", "김치찌개", 120.0, 5.0, 8.0, 7.0, "400g");
         Food savedFood = Food.builder().code("D000002").name("김치찌개").build();
         when(foodRepository.save(any(Food.class))).thenReturn(savedFood);
 
@@ -44,7 +44,7 @@ class FoodServiceTest {
 
         // then
         assertThat(responseDto).isNotNull();
-        assertThat(responseDto.getCode()).isEqualTo("D000002");
+        assertThat(responseDto.code()).isEqualTo("D000002");
     }
 
     @Test
@@ -60,7 +60,7 @@ class FoodServiceTest {
 
         // then
         assertThat(responseDto).isNotNull();
-        assertThat(responseDto.getCode()).isEqualTo(foodCode);
+        assertThat(responseDto.code()).isEqualTo(foodCode);
     }
 
     @Test
@@ -80,7 +80,7 @@ class FoodServiceTest {
     void givenExistingFoodCodeAndUpdateRequest_whenUpdateFood_thenFoodIsUpdated() {
         // given
         String foodCode = "D000001";
-        FoodUpdateRequest updateRequest = FoodUpdateRequest.builder().name("현미밥").energy(321.0).build();
+        FoodUpdateRequest updateRequest = new FoodUpdateRequest("현미밥", 321.0, null, null, null, null);
         Food existingFood = Food.builder().code(foodCode).name("쌀밥").energy(313.0).build();
         when(foodRepository.findById(foodCode)).thenReturn(Optional.of(existingFood));
 
@@ -89,8 +89,8 @@ class FoodServiceTest {
 
         // then
         assertThat(updatedResponse).isNotNull();
-        assertThat(updatedResponse.getName()).isEqualTo("현미밥");
-        assertThat(updatedResponse.getEnergy()).isEqualTo(321.0);
+        assertThat(updatedResponse.name()).isEqualTo("현미밥");
+        assertThat(updatedResponse.energy()).isEqualTo(321.0);
     }
 
     @Test

@@ -113,3 +113,12 @@
     3.  **테스트 코드 수정**: 리팩토링된 코드에 맞춰 관련된 모든 테스트 코드(`UserControllerTest`, `UserRepositoryTest`, `UserServiceTest`)를 수정했습니다.
     4.  **API 문서 개선**: `UserDto`와 `UserController`에 `@Schema`, `@Parameter` 어노테이션을 추가하여 Swagger 문서의 가독성과 명확성을 향상시켰습니다.
 - **검증**: `./gradlew build` 명령을 통해 모든 변경사항이 기존 기능에 영향을 주지 않으며, 모든 테스트가 성공적으로 통과하는 것을 확인했습니다.
+
+---
+
+## 🗓️ 2025-10-21
+
+### 1. Meal 도메인 CRUD API 구현 (TDD)
+- **TDD 적용**: `Red-Green-Refactor` 사이클에 따라, 실패하는 테스트를 먼저 작성하고 이를 통과시키는 방식으로 `Meal` 도메인의 CRUD API를 구현함.
+- **계층별 구현**: Repository, Service, Controller 각 계층에 대한 테스트 코드와 구현체를 모두 작성하여 기능의 안정성을 확보함.
+- **엔티티 및 DTO 설계**: `Meal`, `MealFood` 엔티티와 관련 DTO(`MealCreateRequest`, `MealUpdateRequest`, `MealResponse`)를 설계하여 식단 데이터 구조를 정의함.

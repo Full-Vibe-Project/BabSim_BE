@@ -26,15 +26,17 @@ public class FoodService {
     }
 
     public FoodResponse findFoodByCode(String code) {
-        Food food = foodRepository.findById(code)
+        return new FoodResponse(findFoodEntityByCode(code));
+    }
+
+    public Food findFoodEntityByCode(String code) {
+        return foodRepository.findById(code)
             .orElseThrow(() -> new FoodNotFoundException(code));
-        return new FoodResponse(food);
     }
 
     @Transactional
     public FoodResponse updateFood(String code, FoodUpdateRequest requestDto) {
-        Food food = foodRepository.findById(code)
-            .orElseThrow(() -> new FoodNotFoundException(code));
+        Food food = findFoodEntityByCode(code);
         food.update(requestDto);
         return new FoodResponse(food);
     }

@@ -268,3 +268,36 @@
     5. 관련 테스트 파일들(`UserControllerTest`, `UserRepositoryTest`, `UserServiceTest`)이 새로운 Enum과 필드명을 사용하도록 수정했습니다.
     6. `./gradlew build`를 실행하여 모든 변경 사항이 성공적으로 적용되었음을 확인했습니다.
     7. 사용자의 추가 요청에 따라 `Gender` Enum의 표시 이름을 한글에서 영문("Male", "Female")으로 변경하고, 빌드를 통해 재검증했습니다.
+
+---
+
+## 🗓️ 2025-10-21
+
+- **Prompt**: 현재 브랜치에서의 개발 목적은, 아래와 같아. 개발 목적을 읽고, 현재 파일에서 명시된 테스트 규칙을 기반으로 하여 TDD 방식으로 개발을 진행해줘. [개발 목적] - PRD를 기반으로 식단 엔티티를 적절하게 최신화하고, 관련 CRUD API를 구현
+- **Result**: ✅ 성공
+- **Details**:
+    1. **TDD(Test-Driven Development)** 방법론에 따라 `Red-Green-Refactor` 사이클을 준수하며 `Meal` 도메인 개발을 진행함.
+    2. **Repository Layer**: `MealRepositoryTest`를 먼저 작성하고, 이를 통과시키기 위해 `Meal`, `MealFood` 엔티티와 `MealType` Enum, `MealRepository` 인터페이스를 구현함.
+    3. **Service Layer**: `MealServiceTest`에 CRUD 각 기능(Create, Read, Update, Delete)에 대한 단위 테스트를 먼저 작성하고, 이를 통과시키기 위해 `MealService`의 비즈니스 로직과 관련 DTO(`MealCreateRequest`, `MealUpdateRequest`, `MealResponse`), 예외(`MealNotFoundException`)를 구현함.
+    4. **Controller Layer**: `MealControllerTest`에 각 CRUD API 엔드포인트(`/api/v1/meals`)에 대한 테스트를 먼저 작성하고, 이를 통과시키기 위해 `MealController`를 구현하여 전체 TDD 개발 사이클을 완료함.
+
+- **Prompt**: PR을 올리고, 팀원의 피드백으로 '현재 diet 디렉토리 내의 dto 형식이 class인데, record로 사용하는 것이 어떨지'에 대한 의견을 받았어. 이에 대해 너의 의견을 말하고, 수정 사항이 필요하다면 수정해줘.
+- **Result**: ✅ 성공
+- **Details**:
+    1. 팀원의 피드백을 수용하여 `diet` 도메인의 모든 DTO(`Food...`, `Meal...`)를 `class`에서 `record`로 리팩토링함.
+    2. `record` 변경에 따라, DTO를 사용하는 모든 관련 코드(엔티티, 서비스, 테스트)의 필드 접근 방식을 `getXxx()`에서 `xxx()`로 수정함.
+    3. 이를 통해 코드의 간결성, 불변성을 확보하고 프로젝트 전체의 DTO 컨벤션을 통일함.
+
+---
+
+## 🗓️ 2025-10-22
+
+- **Prompt**: 현재 PR에서, 팀원의 다른 피드백으로 아래와 같은 의견을 받았어. 이에 대해 너의 의견을 말하고, 수정 사항이 필요하다면 수정해줘. [피드백] 현재 mealService에서 user repository와 food repository를 불러오고 있는데, 추후에 순환 참조의 가능성이 있어보입니다..! 특히 식단의 경우 user와 food 도메인과 함께 로직 처리할께 많을 것 같아서 추가로 MealFacade 클래스를 추가해서 userService, mealService, foodService를 DI하는 방식으로 수정하는 것은 어떨까요?
+- **Result**: ✅ 성공
+- **Details**:
+    1. **퍼사드 패턴 도입**: 팀원의 피드백을 수용하여, 도메인 간 결합도를 낮추고 순환 참조 가능성을 방지하기 위해 `MealFacade`를 도입함.
+    2. **`MealService` 리팩토링**: `UserRepository`, `FoodRepository` 의존성을 제거하고, 외부에서 조회된 엔티티를 파라미터로 받도록 메서드 시그니처를 변경함.
+    3. **`MealFacade` 생성**: `UserService`, `FoodService`, `MealService`를 주입받아 식단 생성/수정 등 복합 로직을 처리하는 `MealFacade`를 생성함.
+    4. **`UserService`, `FoodService` 수정**: 퍼사드에서 엔티티를 직접 사용하기 위해, 각 서비스에 엔티티를 반환하는 조회 메서드(`findUserById`, `findFoodEntityByCode`)를 추가함.
+    5. **`MealController` 수정**: `MealService` 대신 `MealFacade`를 사용하도록 의존성을 변경함.
+    6. **테스트 코드 수정**: 변경된 아키텍처에 맞게 `MealServiceTest`와 `MealControllerTest`를 모두 수정함.
