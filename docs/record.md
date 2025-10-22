@@ -122,3 +122,30 @@
 - **TDD 적용**: `Red-Green-Refactor` 사이클에 따라, 실패하는 테스트를 먼저 작성하고 이를 통과시키는 방식으로 `Meal` 도메인의 CRUD API를 구현함.
 - **계층별 구현**: Repository, Service, Controller 각 계층에 대한 테스트 코드와 구현체를 모두 작성하여 기능의 안정성을 확보함.
 - **엔티티 및 DTO 설계**: `Meal`, `MealFood` 엔티티와 관련 DTO(`MealCreateRequest`, `MealUpdateRequest`, `MealResponse`)를 설계하여 식단 데이터 구조를 정의함.
+
+
+---
+## 🗓️ 2025-10-22
+
+### 1. Meal 도메인 퍼사드 패턴 도입
+- **목표**: `MealService`의 `UserRepository`, `FoodRepository` 직접 의존성을 제거하고, 도메인 간 결합도를 낮추기 위해 `MealFacade`를 도입.
+- **주요 변경 사항**:
+    - `MealFacade` 클래스 생성 및 `UserService`, `FoodService`, `MealService` 주입.
+    - `MealService`에서 `UserRepository`, `FoodRepository` 의존성 제거 및 메서드 시그니처 변경.
+    - `UserService`, `FoodService`에 엔티티를 반환하는 조회 메서드 추가.
+    - `MealController`가 `MealService` 대신 `MealFacade`를 사용하도록 변경.
+    - 관련 테스트 코드(`MealServiceTest`, `MealControllerTest`) 수정.
+
+### 2. Health 도메인 CRUD API 구현 (TDD)
+- **목표**: `HealthCondition` 및 `UserHealthCondition` 엔티티에 대한 CRUD 기능 구현 및 테스트 코드 작성.
+- **HealthCondition 구현**:
+    - `HealthConditionType` Enum 확장 (`CHRONIC_DISEASE` 추가).
+    - `HealthConditionRepository`, `HealthConditionService`, `HealthConditionController` 및 관련 DTO, 예외 클래스 구현.
+    - `HealthCondition` 엔티티에 `update` 메서드 추가 및 서비스 로직 반영.
+    - 모든 `HealthCondition` 관련 테스트 통과 확인.
+- **UserHealthCondition 구현**:
+    - `UserHealthConditionRepository`, `UserHealthConditionService`, `UserHealthConditionController` 및 관련 DTO, 예외 클래스 구현.
+    - `UserHealthCondition` 엔티티의 `update` 메서드 추가 시도 중 도구 문제 발생으로 보류.
+    - `UserHealthConditionService`의 `update` 로직은 임시 주석 처리.
+    - `UserHealthCondition` 관련 테스트는 현재 실패 중 (Red Phase).
+- **현재 상태**: `HealthCondition` CRUD는 완료되었으나, `UserHealthCondition`은 `update` 메서드 구현 및 테스트 수정이 필요함.

@@ -22,7 +22,13 @@ public enum ErrorCode {
     LOGIN_INPUT_INVALID(HttpStatus.UNAUTHORIZED, "Invalid login credentials"),
 
     // User
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found");
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found"),
+
+    // Health
+    HEALTH_CONDITION_NOT_FOUND(HttpStatus.NOT_FOUND, "Health condition not found"),
+
+    // User Health Condition
+    USER_HEALTH_CONDITION_NOT_FOUND(HttpStatus.NOT_FOUND, "User health condition not found");
 
     private final HttpStatus status;
     private final String message;

@@ -10,4 +10,11 @@ public class BaseResponse<T> {
     private final int status;
     private final String message;
     private final T data;
+    public static <T> BaseResponse<T> success(T data) {
+        return new BaseResponse<>(200, "Success", data);
+    }
+
+    public static BaseResponse<Void> success() {
+        return new BaseResponse<>(200, "Success", null);
+    }
 }

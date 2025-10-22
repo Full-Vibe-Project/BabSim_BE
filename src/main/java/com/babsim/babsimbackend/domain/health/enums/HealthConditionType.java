@@ -5,5 +5,6 @@ public enum HealthConditionType {
     DIABETES,
     HYPERTENSION,
     OBESITY,
+    CHRONIC_DISEASE,
     NONE
 }
