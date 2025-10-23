@@ -33,3 +33,20 @@ services:
       - "6379:6379"
     volumes:
       - ./db/redis_data:/data
+
+  # ===============================
+  # =      TimescaleDB Database   =
+  # ===============================
+  timescaledb:
+    image: timescale/timescaledb-ha:pg14-latest
+    container_name: babsim-timescaledb
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: babsim_timescaledb
+      POSTGRES_USER: ${TIMESCALEDB_USER}
+      POSTGRES_PASSWORD: ${TIMESCALEDB_PASSWORD}
+      TZ: Asia/Seoul
+    volumes:
+      - ./db/timescaledb_data:/var/lib/postgresql/data

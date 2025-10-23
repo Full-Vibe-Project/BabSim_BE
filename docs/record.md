@@ -38,7 +38,7 @@
 ### 프로젝트 기획 문서(PRD) 최신화
 - **문서 개정**: 새로운 기획서 내용을 반영하여 `docs/PRD.md` 문서를 전면적으로 개정함 (v1.1).
 - **주요 변경사항**:
-    - 경쟁 서비스 분석, 구체화된 사용자 플로우, 초기 데이터베이스 설계(테이블명 영문화) 등 상세 내용을 추가하여 최신 프로젝트 방향성을 명확히 함.
+    - 경쟁 서비스 분석, 구체화된 사용자 플로우, 초기 데이터베이스 설계(테이블명 영문화 포함) 등 상세 내용을 추가하여 최신 프로젝트 방향성을 명확히 함.
 
 ### Food 도메인 CRUD API 구현 (TDD)
 - **TDD 적용**: `Red-Green-Refactor` 사이클에 따라, 실패하는 테스트를 먼저 작성하고 이를 통과시키는 방식으로 `Food` 도메인의 CRUD API를 구현함.
@@ -157,3 +157,11 @@
     4.  **의존성 추가**: `.env` 파일 로딩을 위한 `spring-dotenv` 의존성을 `build.gradle`에 추가함.
     5.  **문서 추가**: `docs/ai-nutrition-architecture-spec.md` 파일을 추가하여 AI 영양 아키텍처 사양을 문서화함.
 - **결과**: 프로젝트가 TimescaleDB를 포함한 다중 데이터소스 환경을 지원할 수 있는 기반을 마련했으며, JPA 설정의 모듈화 및 유지보수성을 향상시킴.
+
+### TimescaleDB 시계열 데이터 도메인 및 엔티티 추가
+- **목적**: AI 기반 영양 분석 및 추천 시스템의 핵심 기능인 시계열 영양 데이터 관리를 위해 TimescaleDB에 저장될 `NutritionTimeseries` 도메인을 구축함.
+- **주요 변경 사항**:
+    1.  **`timeseries` 패키지 생성**: `com.babsim.babsimbackend.domain` 하위에 `timeseries` 패키지를 생성하여 시계열 데이터 관련 엔티티 및 리포지토리를 관리할 수 있는 구조를 마련함.
+    2.  **`NutritionTimeseries` 엔티티 정의**: `user_id`, `ts`, `energy`, `protein`, `carb`, `fat`, `weight`, `blood_sugar` 필드를 포함하는 `NutritionTimeseries` 엔티티를 정의함. `@CreationTimestamp`를 사용하여 `ts` 필드가 자동으로 생성되도록 설정하고, `@Table(name = "nutrition_timeseries")`를 통해 TimescaleDB의 하이퍼테이블과 매핑될 수 있도록 함.
+    3.  **`NutritionTimeseriesRepository` 생성**: `NutritionTimeseries` 엔티티에 대한 CRUD 작업을 수행할 수 있도록 `JpaRepository`를 상속하는 `NutritionTimeseriesRepository` 인터페이스를 생성함.
+- **결과**: TimescaleDB에 시계열 영양 데이터를 저장하고 관리하기 위한 기본적인 도메인 모델과 데이터 접근 계층이 성공적으로 구축됨.

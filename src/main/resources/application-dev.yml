@@ -8,11 +8,16 @@ spring:
   # =       Database (MySQL)      =
   # ===============================
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    # AWS RDS 엔드포인트 또는 외부 DB 주소 (환경 변수 사용)
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    mysql:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: ${DB_URL}
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+    timescaledb:
+      driver-class-name: org.postgresql.Driver
+      url: ${TIMESCALEDB_URL}
+      username: ${TIMESCALEDB_USER}
+      password: ${TIMESCALEDB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate # 운영 환경에서는 validate 또는 none 권장
@@ -25,11 +30,8 @@ spring:
   # ===============================
   data:
     redis:
-      # dev 프로필에서 Redis 활성화
       enabled: true
-      # AWS ElastiCache 또는 외부 Redis 호스트 (환경 변수 사용)
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
   cache:
-    # dev 프로필에서 cache 저장소로 Redis 사용
     type: redis
