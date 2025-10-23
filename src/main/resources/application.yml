@@ -39,3 +39,26 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+
+# ===============================
+# =        Data Sources         =
+# ===============================
+spring:
+  datasource:
+    # MySQL (기본 데이터베이스)
+    mysql:
+      # url, username, password, driver-class-name 등은 프로필별 설정 파일(application-local.yml 등)에서 정의됩니다.
+      # 예시:
+      # url: jdbc:mysql://localhost:3306/babsim_db
+      # username: user
+      # password: password
+      # driver-class-name: com.mysql.cj.jdbc.Driver
+
+    # TimescaleDB (시계열 데이터베이스)
+    timescaledb:
+      # url, username, password, driver-class-name 등은 프로필별 설정 파일(application-local.yml 등)에서 정의됩니다.
+      # 예시:
+      # url: jdbc:postgresql://localhost:5432/timescale_db
+      # username: user
+      # password: password
+      # driver-class-name: org.postgresql.Driver
