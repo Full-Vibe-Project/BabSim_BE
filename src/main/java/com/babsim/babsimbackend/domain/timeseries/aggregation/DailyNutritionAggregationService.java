@@ -25,7 +25,7 @@ public class DailyNutritionAggregationService {
     /**
      * 매일 자정에 실행되어 전날의 영양 데이터를 집계하고 TimescaleDB에 저장합니다.
      */
-    //@Scheduled(cron = "0 0 0 * * ?") // 매일 자정 실행
+    @Scheduled(cron = "0 0 0 * * ?") // 매일 자정 실행
     @Transactional("timescaledbTransactionManager") // TimescaleDB 트랜잭션 매니저 사용
     public void aggregateDailyNutritionData() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
