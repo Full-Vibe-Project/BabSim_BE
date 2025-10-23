@@ -258,28 +258,23 @@
 
 ## 🗓️ 2025-10-20
 
-- **Prompt**: 지금 User 엔티티에서 성별을 Character로 표시하고 있는데, 이걸 Enum으로 바꾸고싶어, 이걸 바꾸고 연관된 다른 객체에서도 바꾸는 리팩토링을 수행해봐
-- **Result**: ✅ 성공
-- **Details**:
-    1. `domain/user/enums`에 `Gender.java` Enum을 생성했습니다.
-    2. `User` 엔티티를 리팩토링하여 `sex: Character`를 `@Enumerated(EnumType.STRING)`이 적용된 `gender: Gender`로 변경했습니다.
-    3. `UserDto.java`의 모든 레코드(Create, Update, Response)가 새로운 `Gender` Enum을 사용하도록 업데이트했습니다.
-    4. `UserService.java`의 `create`, `toResponse` 메서드가 `gender` Enum을 처리하도록 업데이트했습니다.
-    5. 관련 테스트 파일들(`UserControllerTest`, `UserRepositoryTest`, `UserServiceTest`)이 새로운 Enum과 필드명을 사용하도록 수정했습니다.
-    6. `./gradlew build`를 실행하여 모든 변경 사항이 성공적으로 적용되었음을 확인했습니다.
-    7. 사용자의 추가 요청에 따라 `Gender` Enum의 표시 이름을 한글에서 영문("Male", "Female")으로 변경하고, 빌드를 통해 재검증했습니다.
+### User 도메인 `gender` 필드 리팩토링 및 API 문서 개선
+- **목적**: `User` 엔티티의 성별(`sex`) 필드 타입을 `Character`에서 `Gender` Enum으로 변경하여 타입 안정성을 높이고, 관련 API 문서를 보강했습니다.
+- **주요 변경 사항**:
+    1.  **`Gender` Enum 생성**: `domain/user/enums` 경로에 `MALE`, `FEMALE` 값을 갖는 `Gender.java`를 추가했습니다.
+    2.  **엔티티/DTO/서비스 리팩토링**: `User` 엔티티, `UserDto`, `UserService`의 `sex` 필드를 모두 `gender` Enum 타입으로 변경하고, 데이터베이스에는 문자열로 저장되도록 `@Enumerated(EnumType.STRING)`을 적용했습니다.
+    3.  **테스트 코드 수정**: 리팩토링된 코드에 맞춰 관련된 모든 테스트 코드(`UserControllerTest`, `UserRepositoryTest`, `UserServiceTest`)를 수정했습니다.
+    4.  **API 문서 개선**: `UserDto`와 `UserController`에 `@Schema`, `@Parameter` 어노테이션을 추가하여 Swagger 문서의 가독성과 명확성을 향상시켰습니다.
+- **검증**: `./gradlew build` 명령을 통해 모든 변경사항이 기존 기능에 영향을 주지 않으며, 모든 테스트가 성공적으로 통과하는 것을 확인했습니다.
 
 ---
 
 ## 🗓️ 2025-10-21
 
-- **Prompt**: 현재 브랜치에서의 개발 목적은, 아래와 같아. 개발 목적을 읽고, 현재 파일에서 명시된 테스트 규칙을 기반으로 하여 TDD 방식으로 개발을 진행해줘. [개발 목적] - PRD를 기반으로 식단 엔티티를 적절하게 최신화하고, 관련 CRUD API를 구현
-- **Result**: ✅ 성공
-- **Details**:
-    1. **TDD(Test-Driven Development)** 방법론에 따라 `Red-Green-Refactor` 사이클을 준수하며 `Meal` 도메인 개발을 진행함.
-    2. **Repository Layer**: `MealRepositoryTest`를 먼저 작성하고, 이를 통과시키기 위해 `Meal`, `MealFood` 엔티티와 `MealType` Enum, `MealRepository` 인터페이스를 구현함.
-    3. **Service Layer**: `MealServiceTest`에 CRUD 각 기능(Create, Read, Update, Delete)에 대한 단위 테스트를 먼저 작성하고, 이를 통과시키기 위해 `MealService`의 비즈니스 로직과 관련 DTO(`MealCreateRequest`, `MealUpdateRequest`, `MealResponse`), 예외(`MealNotFoundException`)를 구현함.
-    4. **Controller Layer**: `MealControllerTest`에 각 CRUD API 엔드포인트(`/api/v1/meals`)에 대한 테스트를 먼저 작성하고, 이를 통과시키기 위해 `MealController`를 구현하여 전체 TDD 개발 사이클을 완료함.
+### 1. Meal 도메인 CRUD API 구현 (TDD)
+- **TDD 적용**: `Red-Green-Refactor` 사이클에 따라, 실패하는 테스트를 먼저 작성하고 이를 통과시키는 방식으로 `Meal` 도메인의 CRUD API를 구현함.
+- **계층별 구현**: Repository, Service, Controller 각 계층에 대한 테스트 코드와 구현체를 모두 작성하여 기능의 안정성을 확보함.
+- **엔티티 및 DTO 설계**: `Meal`, `MealFood` 엔티티와 관련 DTO(`MealCreateRequest`, `MealUpdateRequest`, `MealResponse`)를 설계하여 식단 데이터 구조를 정의함.
 
 - **Prompt**: PR을 올리고, 팀원의 피드백으로 '현재 diet 디렉토리 내의 dto 형식이 class인데, record로 사용하는 것이 어떨지'에 대한 의견을 받았어. 이에 대해 너의 의견을 말하고, 수정 사항이 필요하다면 수정해줘.
 - **Result**: ✅ 성공
@@ -301,3 +296,11 @@
     4. **`UserService`, `FoodService` 수정**: 퍼사드에서 엔티티를 직접 사용하기 위해, 각 서비스에 엔티티를 반환하는 조회 메서드(`findUserById`, `findFoodEntityByCode`)를 추가함.
     5. **`MealController` 수정**: `MealService` 대신 `MealFacade`를 사용하도록 의존성을 변경함.
     6. **테스트 코드 수정**: 변경된 아키텍처에 맞게 `MealServiceTest`와 `MealControllerTest`를 모두 수정함.
+
+---
+
+## 🗓️ 2025-10-23
+
+- **Prompt**: 커밋 단위로 일을 진행하려고 해 첫번째 커밋 단위 만큼 개발 진행 해줘
+- **Result**: ✅ 성공
+- **Details**: TimescaleDB 통합을 위한 데이터베이스 구성 작업을 완료함. `DatabaseProperties.java`를 `DataSourceProperties.java`로 리팩토링하여 MySQL 및 TimescaleDB에 대한 중첩 구성을 지원하도록 변경하고, `application.yml`에 TimescaleDB 구성 플레이스홀더를 추가함. `JpaConfig.java`를 리팩토링하여 MySQL 및 TimescaleDB 데이터소스, 엔티티 매니저 팩토리, 트랜잭션 매니저를 별도의 설정 클래스(`MySQLJpaConfig.java`, `TimescaleDBJpaConfig.java`)로 분리하여 구성함. `build.gradle`에 `spring-dotenv` 의존성을 추가하고, `docs/ai-nutrition-architecture-spec.md` 파일을 추가함.

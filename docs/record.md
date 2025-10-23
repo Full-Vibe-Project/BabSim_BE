@@ -122,3 +122,38 @@
 - **TDD 적용**: `Red-Green-Refactor` 사이클에 따라, 실패하는 테스트를 먼저 작성하고 이를 통과시키는 방식으로 `Meal` 도메인의 CRUD API를 구현함.
 - **계층별 구현**: Repository, Service, Controller 각 계층에 대한 테스트 코드와 구현체를 모두 작성하여 기능의 안정성을 확보함.
 - **엔티티 및 DTO 설계**: `Meal`, `MealFood` 엔티티와 관련 DTO(`MealCreateRequest`, `MealUpdateRequest`, `MealResponse`)를 설계하여 식단 데이터 구조를 정의함.
+
+- **Prompt**: PR을 올리고, 팀원의 피드백으로 '현재 diet 디렉토리 내의 dto 형식이 class인데, record로 사용하는 것이 어떨지'에 대한 의견을 받았어. 이에 대해 너의 의견을 말하고, 수정 사항이 필요하다면 수정해줘.
+- **Result**: ✅ 성공
+- **Details**:
+    1. 팀원의 피드백을 수용하여 `diet` 도메인의 모든 DTO(`Food...`, `Meal...`)를 `class`에서 `record`로 리팩토링함.
+    2. `record` 변경에 따라, DTO를 사용하는 모든 관련 코드(엔티티, 서비스, 테스트)의 필드 접근 방식을 `getXxx()`에서 `xxx()`로 수정함.
+    3. 이를 통해 코드의 간결성, 불변성을 확보하고 프로젝트 전체의 DTO 컨벤션을 통일함.
+
+---
+
+## 🗓️ 2025-10-22
+
+- **Prompt**: 현재 PR에서, 팀원의 다른 피드백으로 아래와 같은 의견을 받았어. 이에 대해 너의 의견을 말하고, 수정 사항이 필요하다면 수정해줘. [피드백] 현재 mealService에서 user repository와 food repository를 불러오고 있는데, 추후에 순환 참조의 가능성이 있어보입니다..! 특히 식단의 경우 user와 food 도메인과 함께 로직 처리할께 많을 것 같아서 추가로 MealFacade 클래스를 추가해서 userService, mealService, foodService를 DI하는 방식으로 수정하는 것은 어떨까요?
+- **Result**: ✅ 성공
+- **Details**:
+    1. **퍼사드 패턴 도입**: 팀원의 피드백을 수용하여, 도메인 간 결합도를 낮추고 순환 참조 가능성을 방지하기 위해 `MealFacade`를 도입함.
+    2. **`MealService` 리팩토링**: `UserRepository`, `FoodRepository` 의존성을 제거하고, 외부에서 조회된 엔티티를 파라미터로 받도록 메서드 시그니처를 변경함.
+    3. **`MealFacade` 생성**: `UserService`, `FoodService`, `MealService`를 주입받아 식단 생성/수정 등 복합 로직을 처리하는 `MealFacade`를 생성함.
+    4. **`UserService`, `FoodService` 수정**: 퍼사드에서 엔티티를 직접 사용하기 위해, 각 서비스에 엔티티를 반환하는 조회 메서드(`findUserById`, `findFoodEntityByCode`)를 추가함.
+    5. **`MealController` 수정**: `MealService` 대신 `MealFacade`를 사용하도록 의존성을 변경함.
+    6. **테스트 코드 수정**: 변경된 아키텍처에 맞게 `MealServiceTest`와 `MealControllerTest`를 모두 수정함.
+
+---
+
+## 🗓️ 2025-10-23
+
+### TimescaleDB 통합을 위한 다중 데이터소스 설정
+- **목적**: AI 기반 영양 분석 및 추천 시스템의 시계열 데이터 관리를 위해 TimescaleDB를 통합하고, 기존 MySQL과 함께 다중 데이터소스 환경을 구축함.
+- **주요 변경 사항**: 
+    1.  **데이터소스 속성 리팩토링**: `DatabaseProperties.java`를 `DataSourceProperties.java`로 이름을 변경하고, MySQL 및 TimescaleDB 각각의 연결 정보를 관리할 수 있도록 중첩 클래스 구조로 변경함.
+    2.  **`application.yml` 업데이트**: TimescaleDB 연결 정보에 대한 플레이스홀더를 추가하여 프로필별 설정 파일에서 실제 값을 정의할 수 있도록 함.
+    3.  **JPA 설정 분리**: `JpaConfig.java`의 복잡성을 줄이고 각 데이터소스의 독립성을 보장하기 위해, MySQL 및 TimescaleDB에 대한 JPA 설정을 각각 `MySQLJpaConfig.java`와 `TimescaleDBJpaConfig.java`로 분리함. 각 설정 클래스는 해당 데이터소스의 `DataSource`, `EntityManagerFactory`, `PlatformTransactionManager` 빈을 정의하고, `@EnableJpaRepositories`를 통해 해당 도메인 패키지를 스캔하도록 구성함.
+    4.  **의존성 추가**: `.env` 파일 로딩을 위한 `spring-dotenv` 의존성을 `build.gradle`에 추가함.
+    5.  **문서 추가**: `docs/ai-nutrition-architecture-spec.md` 파일을 추가하여 AI 영양 아키텍처 사양을 문서화함.
+- **결과**: 프로젝트가 TimescaleDB를 포함한 다중 데이터소스 환경을 지원할 수 있는 기반을 마련했으며, JPA 설정의 모듈화 및 유지보수성을 향상시킴.
