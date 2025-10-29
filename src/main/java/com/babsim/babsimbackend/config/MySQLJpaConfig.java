@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -16,9 +17,10 @@ import java.util.HashMap;
 
 // AI 생성: MySQL 데이터베이스 JPA 설정
 @Configuration
+@Profile("!test")
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "com.babsim.babsimbackend.domain",
+        basePackages = {"com.babsim.babsimbackend.domain.diet", "com.babsim.babsimbackend.domain.health", "com.babsim.babsimbackend.domain.recommendation", "com.babsim.babsimbackend.domain.user", "com.babsim.babsimbackend.common.entity"},
         entityManagerFactoryRef = "mysqlEntityManagerFactory",
         transactionManagerRef = "mysqlTransactionManager"
 )
@@ -30,7 +32,7 @@ public class MySQLJpaConfig {
             @Qualifier("mysqlDataSource") DataSource mysqlDataSource) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(mysqlDataSource);
-        em.setPackagesToScan("com.babsim.babsimbackend.domain");
+        em.setPackagesToScan("com.babsim.babsimbackend.domain.diet", "com.babsim.babsimbackend.domain.health", "com.babsim.babsimbackend.domain.recommendation", "com.babsim.babsimbackend.domain.user", "com.babsim.babsimbackend.common.entity");
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);

@@ -7,6 +7,7 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import javax.sql.DataSource;
@@ -19,6 +20,7 @@ public class JpaConfig {
 
     private final DataSourceProperties dataSourceProperties;
 
+    @Profile("!test")
     @Primary
     @Bean
     public DataSource mysqlDataSource() {
@@ -32,6 +34,7 @@ public class JpaConfig {
                 .build();
     }
 
+    @Profile("!test")
     @Bean
     public DataSource timescaledbDataSource() {
         DataSourceProperties.TimescaleDB timescaledb = dataSourceProperties.getTimescaledb();
@@ -41,6 +44,31 @@ public class JpaConfig {
                 .username(timescaledb.getUsername())
                 .password(timescaledb.getPassword())
                 .driverClassName(timescaledb.getDriverClassName())
+                .build();
+    }
+
+    @Profile("test")
+    @Primary
+    @Bean
+    public DataSource mysqlTestDataSource() {
+        return DataSourceBuilder.create()
+                .type(HikariDataSource.class)
+                .url("jdbc:h2:mem:mysql_test_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE")
+                .username("sa")
+                .password("")
+                .driverClassName("org.h2.Driver")
+                .build();
+    }
+
+    @Profile("test")
+    @Bean
+    public DataSource timescaledbTestDataSource() {
+        return DataSourceBuilder.create()
+                .type(HikariDataSource.class)
+                .url("jdbc:h2:mem:timescaledb_test_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE")
+                .username("sa")
+                .password("")
+                .driverClassName("org.h2.Driver")
                 .build();
     }
 }

@@ -3,6 +3,7 @@ package com.babsim.babsimbackend.config;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 
 // AI 생성: TimescaleDB 데이터베이스 JPA 설정
 @Configuration
+@Profile("!test")
 @EnableTransactionManagement
 @EnableJpaRepositories(
         basePackages = "com.babsim.babsimbackend.timeseries", // TimescaleDB 엔티티 패키지

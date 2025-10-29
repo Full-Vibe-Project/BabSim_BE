@@ -308,3 +308,11 @@
 - **Prompt**: conventions폴더에 있는 규칙을 제대로 지켜서 커밋 메세지 다시 작성해줘
 - **Result**: ✅ 성공
 - **Details**: TimescaleDB에 시계열 영양 데이터를 저장하기 위한 `timeseries` 도메인과 `NutritionTimeseries` 엔티티 및 해당 리포지토리를 추가함. `com.babsim.babsimbackend.domain.timeseries` 패키지를 생성하고, `id`, `userId`, `ts`, `energy`, `protein`, `carb`, `fat`, `weight`, `bloodSugar` 필드를 포함하는 `NutritionTimeseries` 엔티티를 정의함. `JpaRepository`를 상속하는 `NutritionTimeseriesRepository`를 생성함.
+
+---
+
+## 🗓️ 2025-10-29
+
+- **Prompt**: 이제부터 앞으로의 프롬프트 작업 성공/실패 내역에 대해 docs/PROMPTLOG.md에 작성해주고, docs/record.md에도 중요한 내용이 있으면 계속해서 작성해줘.
+- **Result**: ✅ 성공
+- **Details**: 로깅 규칙 설정 및 확인. 앞으로 모든 프롬프트 작업에 대해 `docs/PROMPTLOG.md`와 `docs/record.md`에 `ai-guidelines/05-logging.md` 규칙에 따라 기록을 시작함.
