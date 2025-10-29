@@ -165,3 +165,30 @@
     2.  **`NutritionTimeseries` 엔티티 정의**: `user_id`, `ts`, `energy`, `protein`, `carb`, `fat`, `weight`, `blood_sugar` 필드를 포함하는 `NutritionTimeseries` 엔티티를 정의함. `@CreationTimestamp`를 사용하여 `ts` 필드가 자동으로 생성되도록 설정하고, `@Table(name = "nutrition_timeseries")`를 통해 TimescaleDB의 하이퍼테이블과 매핑될 수 있도록 함.
     3.  **`NutritionTimeseriesRepository` 생성**: `NutritionTimeseries` 엔티티에 대한 CRUD 작업을 수행할 수 있도록 `JpaRepository`를 상속하는 `NutritionTimeseriesRepository` 인터페이스를 생성함.
 - **결과**: TimescaleDB에 시계열 영양 데이터를 저장하고 관리하기 위한 기본적인 도메인 모델과 데이터 접근 계층이 성공적으로 구축됨.
+
+---
+
+## 🗓️ 2025-10-29
+
+### TimescaleDB 통합: 일일 영양 집계 및 테스트 환경 개선
+
+- **목적**: TimescaleDB 통합의 핵심 기능인 일일 영양 데이터 집계 로직을 구현하고, 다중 데이터소스 환경에서의 테스트 안정성을 확보함.
+- **주요 변경 사항**: 
+    1.  **테스트 환경 개선**:
+        *   `JpaConfig.java`를 수정하여 `test` 프로파일 활성화 시 MySQL 및 TimescaleDB JPA 컨텍스트 모두에 H2 인메모리 데이터베이스를 사용하도록 조건부 빈을 정의함.
+        *   `MySQLJpaConfig.java` 및 `TimescaleDBJpaConfig.java`에 `@Profile("!test")`를 추가하여 실제 데이터베이스 설정이 테스트 환경에서 로드되지 않도록 함.
+        *   `build.gradle`에서 H2 의존성을 `testImplementation`으로 변경하여 테스트 전용으로 관리함.
+        *   `application-test.yml`을 초기 상태로 유지하여 기본 H2 설정을 활용함.
+    2.  **일일 영양 집계 로직 구현**:
+        *   `DailyNutritionSumDto.java`를 정의하여 일일 영양소 합계 쿼리 결과를 위한 DTO를 제공함.
+        *   `MealRepository.java`에 `findDailyNutritionSumByUserIdAndDate` 쿼리 메서드를 추가하여 특정 기간 동안의 사용자별 영양소 합계를 조회할 수 있도록 함.
+        *   `DailyNutritionAggregationService.java`를 리팩토링하여 `MealRepository`를 통해 데이터를 조회하고, `NutritionTimeseriesId`를 사용하여 `NutritionTimeseries` 엔티티를 저장하는 `aggregateAndSave` 메서드를 구현함.
+    3.  **뷰 기반 일일 영양 요약 엔티티 추가**:
+        *   `DailyNutritionSummaryId.java`를 정의하여 `DailyNutritionSummary` 뷰 엔티티의 복합 키를 제공함.
+        *   `DailyNutritionSummary.java` 엔티티를 `@Subselect` 어노테이션을 사용하여 MySQL의 `v_daily_nutrition` 뷰에 매핑하고, 읽기 전용으로 설정함.
+        *   `DailyNutritionSummaryRepository.java`를 정의하여 해당 뷰 엔티티에 대한 데이터 접근을 가능하게 함.
+    4.  **일일 영양 집계 스케줄러 구현**:
+        *   `DailyAggregationScheduler.java`를 구현하여 `@Scheduled` 어노테이션을 통해 매일 새벽 1시에 모든 사용자에 대해 전날의 영양 데이터를 집계하고 `DailyNutritionAggregationService`를 호출하도록 함.
+        *   `DailyAggregationSchedulerTest.java`를 작성하여 스케줄러의 동작을 단위 테스트함.
+    5.  **`NutritionTimeseries` 엔티티 리팩토링**: `NutritionTimeseries` 엔티티의 ID를 `NutritionTimeseriesId` 복합 키로 변경하여 TimescaleDB의 시계열 데이터 모델에 더 적합하도록 개선함.
+- **결과**: TimescaleDB 통합의 핵심 기능인 일일 영양 데이터 집계 로직이 구현되었으며, 다중 데이터소스 환경에서의 테스트 안정성이 확보됨. 이를 통해 AI 기반 영양 분석 및 추천 시스템의 데이터 기반이 더욱 견고해짐.

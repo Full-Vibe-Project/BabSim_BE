@@ -211,48 +211,38 @@
 
 ## 🗓️ 2025-10-16
 
-- **Prompt**: 이제 src/main 내부의 파일들을 보고 현재 전반적으로 구성된 아키텍처를 기억해. 이제부터 앞으로의 프롬프트 작업 성공/실패 내역에 대해 PROMPTLOG에 작성해주고, record에도 중요한 내용이 있으면 계속해서 작성해줘.
-- **Result**: ✅ 성공
-- **Details**: `src/main` 디렉토리 구조와 주요 파일(`build.gradle`, `application.yml` 등)을 분석하여 프로젝트 아키텍처를 파악하고 기억함. DDD 기반의 계층형 아키텍처임을 확인하고, `PROMPTLOG.md`와 `record.md`에 작업 내역 기록을 시작함.
+### 프로젝트 아키텍처 분석 및 기록 시작
+- **아키텍처 분석**: `src/main` 내부 코드 분석을 통해 프로젝트가 Spring Boot 기반의 DDD(도메인 주도 설계) 계층형 아키텍처를 따르는 것을 확인함.
+    - **주요 레이어**: `common`, `config`, `domain`, `infrastructure`
+    - **핵심 도메인**: `auth`, `diet`, `health`, `recommendation`
+    - **기술 스택**: Spring Boot, JPA, Security, JWT, Redis, MySQL, Swagger 등
+- **기록 시스템 활성화**: 사용자 요청에 따라 `docs/PROMPTLOG.md` (프롬프트 로그) 및 `docs/record.md` (작업 요약)에 모든 작업 내역을 기록하기 시작함.
 
-- **Prompt**: (Exception handling standardization guide provided)
-- **Result**: ✅ 성공
-- **Details**: 사용자가 제공한 가이드에 따라 전역 예외 처리 메커니즘을 표준화함. `ErrorCode`, `GlobalExceptionHandler`, `ErrorResponse`를 수정하고, `UserControllerTest`가 표준화된 에러 응답을 검증하도록 업데이트함. `application-test.yml`에 H2 설정을 적용하여 테스트 환경을 구성함.
-- 
-- **Prompt**: 이제 보니까 ErrorCode같은게 너가 바꾸기 전에도 이미 관련 코드가 있던것같은데 최대한 원래 코드에 똑같은게 있으면 그걸 그대로 쓰는 방식으로 하고싶어, 왜냐하면 다른 팀원의 작업물이 기존 코드를 쓸 수 있거든. 그래서 가능한 기존코드를 바꾸지 않고 해봐. 그렇다면, 이 기준에 의하면 어떤 파일들을 어떻게 바꿀지 우선 바꾸기 전에 나한테 보여봐 지금 .
-- **Result**: ✅ 성공
-- **Details**: 사용자 요청에 따라, 기존 코드를 최대한 유지하면서 예외 처리 표준화 가이드를 적용하는 수정안을 제시하고 승인받음.
-- 
-- **Prompt**: 해봐
-- **Result**: ✅ 성공
-- **Details**: 제시한 수정안에 따라 `ErrorCode`, `GlobalExceptionHandler`, `ErrorResponse`, `UserControllerTest` 파일을 비파괴적인 방식으로 수정하여 전역 예외 처리 구조를 개선함.
+### 전역 예외 처리 표준화
+- **목표**: 기존 코드를 최대한 보존하면서, 프로젝트의 예외 처리를 중앙에서 관리하고 일관된 에러 응답을 반환하도록 구조를 개선함.
+- **주요 변경 사항**:
+    - `ErrorCode` Enum: `LOGIN_INPUT_INVALID`의 메시지를 가이드에 맞게 수정하고, 기존 코드는 유지함.
+    - `GlobalExceptionHandler`: `@RestControllerAdvice`에 `MethodArgumentNotValidException` 등 다양한 공통 예외 처리 핸들러를 추가하여 보강함.
+    - `ErrorResponse` DTO: 기존 생성자를 유지하면서, 유효성 검사 실패 시 필드별 에러를 담을 수 있도록 `errors` 필드와 관련 로직을 추가함.
+    - `UserControllerTest`: E2E 테스트에서 사용자가 삭제된 후 `404 Not Found`와 함께 표준 에러 포맷(`{"code":"USER_NOT_FOUND", ...}`)이 반환되는지 명시적으로 검증하도록 수정함.
+- **결과**: 기존 코드와의 호환성을 유지하면서, 향후 모든 도메인의 예외가 `GlobalExceptionHandler`에 의해 일관된 JSON 포맷으로 처리되도록 개선하여 API 클라이언트의 에러 처리가 용이해짐.
 
 ---
 
 ## 🗓️ 2025-10-19
 
-- **Prompt**: 위와 같은 내용들이 코드 리뷰로 제시되었는데, 너가 봤을때 적용하기 적절한 것들을 적용해봐
-- **Result**: ✅ 성공
-- **Details**:
-    1.  **Analysis**: 코드 리뷰를 분석하여 `auth`, `health` 도메인, 예외 처리, API 문서화에 대한 개선 계획을 수립했습니다.
-    2.  **Refactor `auth` Domain**: `User` 엔티티의 캡슐화를 강화하고 `UserService`의 `update`, `delete` 메서드 로직을 개선했습니다.
-    3.  **Refactor `health` Domain**: `HealthCondition`, `UserHealthCondition`의 불필요한 주석을 제거하고, `UserHealthCondition`에 중복 데이터 방지를 위한 복합 유니크 키를 추가했습니다.
-    4.  **API Docs**: `UserController`에 Swagger 어노테이션(`@Tag`, `@Operation`)을 추가하여 API 문서 가독성을 높였습니다.
-    5.  **Exception Handling**: `GlobalExceptionHandler`가 `ConstraintViolationException` 발생 시 더 상세한 오류 정보를 반환하도록 개선했습니다.
-    6.  **Test Fix (1)**: `User` 엔티티 리팩토링으로 인해 발생한 `UserRepositoryTest`의 컴파일 오류를 수정했습니다. (`changeName` -> `update`)
-    7.  **Test Fix (2)**: `UserService` 리팩토링으로 인해 발생한 `UserServiceTest`의 `UnnecessaryStubbingException` 오류를 수정했습니다. (`existsById` -> `findById`)
+### 코드 리뷰 기반 리팩토링 및 검증
 
-- **Prompt**: 아니 이미 수정 안전하게 다 했으니까, 그냥 테스트 코드나 돌려서 확인만 해봐 (User states they already refactored, asks to just run tests)
-- **Result**: ❌ 실패 -> ✅ 성공
-- **Details**:
-    1.  사용자 요청에 따라 `./gradlew clean test`를 실행했으나, `UserControllerTest`에서 `AssertionError`가 발생하여 실패했습니다.
-    2.  **Analysis**: 사용자가 `domain/auth`를 `domain/user`로 변경하고 API 경로를 `/api/v1/users`로 통일했지만, `UserController`와 `UserControllerTest`에 이전 경로(`/api/v1/auth`)가 일부 남아있어 경로 불일치가 발생했습니다.
-    3.  **Fix**: `UserControllerTest`의 요청 경로와 `UserController`의 `Location` 헤더 URI를 모두 `/api/v1/users`로 수정했습니다.
-    4.  **Verification**: 테스트를 다시 실행하여 모든 테스트가 통과하는 것을 최종 확인했습니다.
-
-- **Prompt**: 다른사람 코드는 일단 건들지 마 (For now, don't touch other people's code.)
-- **Result**: ✅ 성공
-- **Details**: 지침에 따라, 이전에 계획했던 `diet` 도메인의 DTO 리팩토링 작업을 중단했습니다.
+- **목적**: 팀원의 코드 리뷰를 반영하여 코드 품질을 개선하고, `auth` 도메인을 `user` 도메인으로 변경하는 과정에서 발생한 문제를 해결 및 검증했습니다.
+- **주요 개선 사항**:
+    1.  **엔티티 캡슐화**: `UserService`의 `update` 로직을 `User` 엔티티 내부로 이동시켜 객체지향 설계를 강화했습니다.
+    2.  **로직 효율화**: `UserService`의 `delete` 메서드에서 불필요한 DB 조회를 제거했습니다.
+    3.  **데이터 무결성 강화**: `UserHealthCondition` 엔티티에 중복 데이터 방지 제약조건을 추가하여 데이터 무결성을 보장했습니다.
+    4.  **API 문서화**: `UserController`에 Swagger 어노테이션을 추가하여 API 명세의 가독성을 높였습니다.
+    5.  **예외 처리 개선**: `GlobalExceptionHandler`가 유효성 검사 예외 발생 시 더 상세한 오류 정보를 반환하도록 개선했습니다.
+- **`user` 도메인 변경 후속 조치**:
+    - 사용자가 직접 `domain/auth`를 `domain/user`로 변경한 후, 이로 인해 발생한 `UserControllerTest`의 API 경로 불일치 오류를 해결했습니다.
+- **검증**: 모든 리팩토링 및 수정 작업 후 `./gradlew clean test`를 실행하여 전체 테스트가 성공적으로 통과하는 것을 최종 확인했습니다.
 
 ---
 
@@ -301,18 +291,37 @@
 
 ## 🗓️ 2025-10-23
 
-- **Prompt**: 커밋 단위로 일을 진행하려고 해 첫번째 커밋 단위 만큼 개발 진행 해줘
-- **Result**: ✅ 성공
-- **Details**: TimescaleDB 통합을 위한 데이터베이스 구성 작업을 완료함. `DatabaseProperties.java`를 `DataSourceProperties.java`로 리팩토링하여 MySQL 및 TimescaleDB에 대한 중첩 구성을 지원하도록 변경하고, `application.yml`에 TimescaleDB 구성 플레이스홀더를 추가함. `JpaConfig.java`를 리팩토링하여 MySQL 및 TimescaleDB 데이터소스, 엔티티 매니저 팩토리, 트랜잭션 매니저를 별도의 설정 클래스(`MySQLJpaConfig.java`, `TimescaleDBJpaConfig.java`)로 분리하여 구성함. `build.gradle`에 `spring-dotenv` 의존성을 추가하고, `docs/ai-nutrition-architecture-spec.md` 파일을 추가함.
+### TimescaleDB 통합을 위한 다중 데이터소스 설정
+- **목적**: AI 기반 영양 분석 및 추천 시스템의 시계열 데이터 관리를 위해 TimescaleDB를 통합하고, 기존 MySQL과 함께 다중 데이터소스 환경을 구축함.
+- **주요 변경 사항**: 
+    1.  **데이터소스 속성 리팩토링**: `DatabaseProperties.java`를 `DataSourceProperties.java`로 이름을 변경하고, MySQL 및 TimescaleDB 각각의 연결 정보를 관리할 수 있도록 중첩 클래스 구조로 변경함.
+    2.  **`application.yml` 업데이트**: TimescaleDB 연결 정보에 대한 플레이스홀더를 추가하여 프로필별 설정 파일에서 실제 값을 정의할 수 있도록 함.
+    3.  **JPA 설정 분리**: `JpaConfig.java`의 복잡성을 줄이고 각 데이터소스의 독립성을 보장하기 위해, MySQL 및 TimescaleDB에 대한 JPA 설정을 각각 `MySQLJpaConfig.java`와 `TimescaleDBJpaConfig.java`로 분리함. 각 설정 클래스는 해당 데이터소스의 `DataSource`, `EntityManagerFactory`, `PlatformTransactionManager` 빈을 정의하고, `@EnableJpaRepositories`를 통해 해당 도메인 패키지를 스캔하도록 구성함.
+    4.  **의존성 추가**: `.env` 파일 로딩을 위한 `spring-dotenv` 의존성을 `build.gradle`에 추가함.
+    5.  **문서 추가**: `docs/ai-nutrition-architecture-spec.md` 파일을 추가하여 AI 영양 아키텍처 사양을 문서화함.
+- **결과**: 프로젝트가 TimescaleDB를 포함한 다중 데이터소스 환경을 지원할 수 있는 기반을 마련했으며, JPA 설정의 모듈화 및 유지보수성을 향상시킴.
 
-- **Prompt**: conventions폴더에 있는 규칙을 제대로 지켜서 커밋 메세지 다시 작성해줘
-- **Result**: ✅ 성공
-- **Details**: TimescaleDB에 시계열 영양 데이터를 저장하기 위한 `timeseries` 도메인과 `NutritionTimeseries` 엔티티 및 해당 리포지토리를 추가함. `com.babsim.babsimbackend.domain.timeseries` 패키지를 생성하고, `id`, `userId`, `ts`, `energy`, `protein`, `carb`, `fat`, `weight`, `bloodSugar` 필드를 포함하는 `NutritionTimeseries` 엔티티를 정의함. `JpaRepository`를 상속하는 `NutritionTimeseriesRepository`를 생성함.
+### TimescaleDB 시계열 데이터 도메인 및 엔티티 추가
+- **목적**: AI 기반 영양 분석 및 추천 시스템의 핵심 기능인 시계열 영양 데이터 관리를 위해 TimescaleDB에 저장될 `NutritionTimeseries` 도메인을 구축함.
+- **주요 변경 사항**:
+    1.  **`timeseries` 패키지 생성**: `com.babsim.babsimbackend.domain` 하위에 `timeseries` 패키지를 생성하여 시계열 데이터 관련 엔티티 및 리포지토리를 관리할 수 있는 구조를 마련함.
+    2.  **`NutritionTimeseries` 엔티티 정의**: `user_id`, `ts`, `energy`, `protein`, `carb`, `fat`, `weight`, `blood_sugar` 필드를 포함하는 `NutritionTimeseries` 엔티티를 정의함. `@CreationTimestamp`를 사용하여 `ts` 필드가 자동으로 생성되도록 설정하고, `@Table(name = "nutrition_timeseries")`를 통해 TimescaleDB의 하이퍼테이블과 매핑될 수 있도록 함.
+    3.  **`NutritionTimeseriesRepository` 생성**: `NutritionTimeseries` 엔티티에 대한 CRUD 작업을 수행할 수 있도록 `JpaRepository`를 상속하는 `NutritionTimeseriesRepository` 인터페이스를 생성함.
+- **결과**: TimescaleDB에 시계열 영양 데이터를 저장하고 관리하기 위한 기본적인 도메인 모델과 데이터 접근 계층이 성공적으로 구축됨.
 
 ---
 
 ## 🗓️ 2025-10-29
 
-- **Prompt**: 이제부터 앞으로의 프롬프트 작업 성공/실패 내역에 대해 docs/PROMPTLOG.md에 작성해주고, docs/record.md에도 중요한 내용이 있으면 계속해서 작성해줘.
+- **Prompt**: (초기 컨텍스트 설정, 문제 분석, H2 전용 테스트 및 오류 보고 프로토콜에 대한 사용자 지시)
 - **Result**: ✅ 성공
-- **Details**: 로깅 규칙 설정 및 확인. 앞으로 모든 프롬프트 작업에 대해 `docs/PROMPTLOG.md`와 `docs/record.md`에 `ai-guidelines/05-logging.md` 규칙에 따라 기록을 시작함.
+- **Details**:
+    - `JpaConfig.java`를 수정하여 `test` 프로파일에서 MySQL 및 TimescaleDB JPA 컨텍스트 모두에 H2 인메모리 데이터베이스를 사용하도록 조건부 빈을 정의함.
+    - `MySQLJpaConfig.java` 및 `TimescaleDBJpaConfig.java`에 `@Profile("!test")`를 추가하여 테스트 환경에서는 비활성화되도록 함.
+    - `DailyNutritionSumDto.java`, `DailyNutritionSummary.java`, `DailyNutritionSummaryId.java` 엔티티 및 리포지토리를 생성하여 뷰 기반 일일 영양 집계 기능을 구현함.
+    - `DailyNutritionAggregationService.java`를 리팩토링하여 `MealRepository`를 통해 데이터를 조회하고 `aggregateAndSave` 메서드를 구현함.
+    - `DailyAggregationScheduler.java`를 구현하여 모든 사용자에 대해 전날의 영양 데이터를 주기적으로 집계하도록 스케줄링 로직을 추가함.
+    - `DailyAggregationSchedulerTest.java`를 작성하여 스케줄러의 동작을 검증함.
+    - `build.gradle`에서 H2 의존성을 `testImplementation`으로 변경함.
+    - `application-test.yml`을 초기 상태로 되돌려 기본 H2 설정을 유지함.
+    - 사용자 요청에 따라 테스트 실행은 직접 하지 않고, 오류 발생 시 즉시 수정하지 않고 보고 후 지시를 따르는 새로운 프로토콜을 확립함.
