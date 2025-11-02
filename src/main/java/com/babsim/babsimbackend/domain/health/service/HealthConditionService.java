@@ -5,7 +5,9 @@ import com.babsim.babsimbackend.domain.health.dto.request.HealthConditionUpdateR
 import com.babsim.babsimbackend.domain.health.entity.HealthCondition;
 import com.babsim.babsimbackend.domain.health.exception.HealthConditionNotFoundException;
 import com.babsim.babsimbackend.domain.health.repository.HealthConditionRepository;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,38 +18,35 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class HealthConditionService {
 
-    private final HealthConditionRepository healthConditionRepository;
+	private final HealthConditionRepository healthConditionRepository;
 
-    @Transactional
-    public HealthCondition createHealthCondition(HealthConditionCreateRequest request) {
-        HealthCondition healthCondition = HealthCondition.builder()
-                .name(request.name())
-                .type(request.type())
-                .build();
-        return healthConditionRepository.save(healthCondition);
-    }
+	@Transactional
+	public HealthCondition createHealthCondition(HealthConditionCreateRequest request) {
+		HealthCondition healthCondition = HealthCondition.builder()
+			.name(request.name())
+			.type(request.type())
+			.build();
+		return healthConditionRepository.save(healthCondition);
+	}
 
-    public HealthCondition getHealthConditionById(Long id) {
-        return healthConditionRepository.findById(id)
-                .orElseThrow(HealthConditionNotFoundException::new);
-    }
+	public HealthCondition getHealthConditionById(Long id) {
+		return healthConditionRepository.findById(id)
+			.orElseThrow(HealthConditionNotFoundException::new);
+	}
 
-    public List<HealthCondition> getAllHealthConditions() {
-        return healthConditionRepository.findAll();
-    }
+	public List<HealthCondition> getAllHealthConditions() {
+		return healthConditionRepository.findAll();
+	}
 
-    @Transactional
-    public HealthCondition updateHealthCondition(Long id, HealthConditionUpdateRequest request) {
-        HealthCondition healthCondition = getHealthConditionById(id);
-        // Assuming HealthCondition entity has update method or setters
-        // For now, let's assume direct field setting for simplicity
-        // In a real application, consider an update method in the entity
-        healthCondition.update(request.name(), request.type());
-        return healthConditionRepository.save(healthCondition);
-    }
+	@Transactional
+	public HealthCondition updateHealthCondition(Long id, HealthConditionUpdateRequest request) {
+		HealthCondition healthCondition = getHealthConditionById(id);
+		healthCondition.update(request.name(), request.type());
+		return healthConditionRepository.save(healthCondition);
+	}
 
-    @Transactional
-    public void deleteHealthCondition(Long id) {
-        healthConditionRepository.deleteById(id);
-    }
+	@Transactional
+	public void deleteHealthCondition(Long id) {
+		healthConditionRepository.deleteById(id);
+	}
 }

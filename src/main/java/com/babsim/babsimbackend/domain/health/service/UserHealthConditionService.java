@@ -11,7 +11,9 @@ import com.babsim.babsimbackend.domain.health.repository.UserHealthConditionRepo
 import com.babsim.babsimbackend.domain.user.entity.User;
 import com.babsim.babsimbackend.domain.user.exception.UserNotFoundException;
 import com.babsim.babsimbackend.domain.user.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,56 +25,47 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class UserHealthConditionService {
 
-    private final UserHealthConditionRepository userHealthConditionRepository;
-    private final UserRepository userRepository;
-    private final HealthConditionRepository healthConditionRepository;
+	private final UserHealthConditionRepository userHealthConditionRepository;
+	private final UserRepository userRepository;
+	private final HealthConditionRepository healthConditionRepository;
 
-    @Transactional
-    public UserHealthCondition createUserHealthCondition(UserHealthConditionCreateRequest request) {
-        User user = userRepository.findById(request.userId())
-                .orElseThrow(UserNotFoundException::new);
-        HealthCondition healthCondition = healthConditionRepository.findById(request.healthConditionId())
-                .orElseThrow(HealthConditionNotFoundException::new);
+	@Transactional
+	public UserHealthCondition createUserHealthCondition(UserHealthConditionCreateRequest request) {
+		User user = userRepository.findById(request.userId())
+			.orElseThrow(UserNotFoundException::new);
+		HealthCondition healthCondition = healthConditionRepository.findById(request.healthConditionId())
+			.orElseThrow(HealthConditionNotFoundException::new);
 
-        UserHealthCondition userHealthCondition = UserHealthCondition.builder()
-                .user(user)
-                .healthCondition(healthCondition)
-                .build();
-        return userHealthConditionRepository.save(userHealthCondition);
-    }
+		UserHealthCondition userHealthCondition = UserHealthCondition.builder()
+			.user(user)
+			.healthCondition(healthCondition)
+			.build();
+		return userHealthConditionRepository.save(userHealthCondition);
+	}
 
-    public UserHealthCondition getUserHealthConditionById(Long id) {
-        return userHealthConditionRepository.findById(id)
-                .orElseThrow(UserHealthConditionNotFoundException::new);
-    }
+	public UserHealthCondition getUserHealthConditionById(Long id) {
+		return userHealthConditionRepository.findById(id)
+			.orElseThrow(UserHealthConditionNotFoundException::new);
+	}
 
-    public List<UserHealthCondition> getAllUserHealthConditions() {
-        return userHealthConditionRepository.findAll();
-    }
+	public List<UserHealthCondition> getAllUserHealthConditions() {
+		return userHealthConditionRepository.findAll();
+	}
 
-    @Transactional
-    public UserHealthCondition updateUserHealthCondition(Long id, UserHealthConditionUpdateRequest request) {
-        UserHealthCondition userHealthCondition = getUserHealthConditionById(id);
-        User user = userRepository.findById(request.userId())
-                .orElseThrow(UserNotFoundException::new);
-        HealthCondition healthCondition = healthConditionRepository.findById(request.healthConditionId())
-                .orElseThrow(HealthConditionNotFoundException::new);
+	@Transactional
+	public UserHealthCondition updateUserHealthCondition(Long id, UserHealthConditionUpdateRequest request) {
+		UserHealthCondition userHealthCondition = getUserHealthConditionById(id);
+		User user = userRepository.findById(request.userId())
+			.orElseThrow(UserNotFoundException::new);
+		HealthCondition healthCondition = healthConditionRepository.findById(request.healthConditionId())
+			.orElseThrow(HealthConditionNotFoundException::new);
 
-        // Assuming UserHealthCondition entity has update method or setters
-        // For now, let's assume direct field setting for simplicity
-        // In a real application, consider an update method in the entity
-        // userHealthCondition = UserHealthCondition.builder()
-        //         .id(userHealthCondition.getId())
-        //         .user(user)
-        //         .healthCondition(healthCondition)
-        //         .build();
-        // return userHealthConditionRepository.save(userHealthCondition);
-        // userHealthCondition.update(user, healthCondition);
-        return userHealthCondition;
-    }
+		userHealthCondition.update(user, healthCondition);
+		return userHealthCondition;
+	}
 
-    @Transactional
-    public void deleteUserHealthCondition(Long id) {
-        userHealthConditionRepository.deleteById(id);
-    }
+	@Transactional
+	public void deleteUserHealthCondition(Long id) {
+		userHealthConditionRepository.deleteById(id);
+	}
 }
