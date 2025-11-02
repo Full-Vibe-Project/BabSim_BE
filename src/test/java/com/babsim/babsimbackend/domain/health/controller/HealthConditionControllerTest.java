@@ -1,13 +1,12 @@
 package com.babsim.babsimbackend.domain.health.controller;
 
-import com.babsim.babsimbackend.common.dto.BaseResponse;
 import com.babsim.babsimbackend.domain.health.dto.request.HealthConditionCreateRequest;
 import com.babsim.babsimbackend.domain.health.dto.request.HealthConditionUpdateRequest;
-import com.babsim.babsimbackend.domain.health.dto.response.HealthConditionResponse;
 import com.babsim.babsimbackend.domain.health.entity.HealthCondition;
 import com.babsim.babsimbackend.domain.health.enums.HealthConditionType;
 import com.babsim.babsimbackend.domain.health.service.HealthConditionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,135 +14,126 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
-import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(HealthConditionController.class)
+@WebMvcTest(controllers = HealthConditionController.class,
+	excludeAutoConfiguration = SecurityAutoConfiguration.class)
 class HealthConditionControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+	@Autowired
+	private ObjectMapper objectMapper;
 
-    @MockBean
-    private HealthConditionService healthConditionService;
+	@MockBean
+	private HealthConditionService healthConditionService;
 
-    @DisplayName("given_HealthConditionCreateRequest_when_createHealthCondition_then_returns201Created")
-    @Test
-    void given_HealthConditionCreateRequest_when_createHealthCondition_then_returns201Created() throws Exception {
-        // given
-        HealthConditionCreateRequest request = new HealthConditionCreateRequest("고혈압", HealthConditionType.CHRONIC_DISEASE);
-        HealthCondition healthCondition = HealthCondition.builder()
-                .name(request.name())
-                .type(request.type())
-                .build();
-        ReflectionTestUtils.setField(healthCondition, "id", 1L);
-        when(healthConditionService.createHealthCondition(any(HealthConditionCreateRequest.class))).thenReturn(healthCondition);
+	private HealthCondition healthCondition;
+	private Long healthConditionId;
 
-        // when
-        ResultActions actions = mockMvc.perform(post("/api/v1/health-conditions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)));
+	@BeforeEach
+	void setUp() {
+		healthConditionId = 1L;
+		healthCondition = mock(HealthCondition.class);
 
-        // then
-        actions.andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.name").value("고혈압"))
-                .andExpect(jsonPath("$.data.type").value("CHRONIC_DISEASE"));
-    }
+		given(healthCondition.getId()).willReturn(healthConditionId);
+		given(healthCondition.getName()).willReturn("당뇨");
+		given(healthCondition.getType()).willReturn(HealthConditionType.DIABETES);
+	}
 
-    @DisplayName("given_HealthConditionId_when_getHealthConditionById_then_returns200Ok")
-    @Test
-    void given_HealthConditionId_when_getHealthConditionById_then_returns200Ok() throws Exception {
-        // given
-        Long healthConditionId = 1L;
-        HealthCondition healthCondition = HealthCondition.builder()
-                .name("고혈압")
-                .type(HealthConditionType.CHRONIC_DISEASE)
-                .build();
-        ReflectionTestUtils.setField(healthCondition, "id", healthConditionId);
-        when(healthConditionService.getHealthConditionById(healthConditionId)).thenReturn(healthCondition);
+	@Test
+	@DisplayName("건강 상태 생성 API 호출 성공")
+	void createHealthCondition_success() throws Exception {
+		// Given
+		HealthConditionCreateRequest request = new HealthConditionCreateRequest("당뇨", HealthConditionType.DIABETES);
+		given(healthConditionService.createHealthCondition(any(HealthConditionCreateRequest.class))).willReturn(healthCondition);
 
-        // when
-        ResultActions actions = mockMvc.perform(get("/api/v1/health-conditions/{id}", healthConditionId)
-                .contentType(MediaType.APPLICATION_JSON));
+		// When & Then
+		mockMvc.perform(post("/api/v1/health-conditions")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isCreated())
+			.andExpect(jsonPath("$.data.name").value("당뇨"))
+			.andExpect(jsonPath("$.data.type").value("DIABETES"));
 
-        // then
-        actions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.name").value("고혈압"))
-                .andExpect(jsonPath("$.data.type").value("CHRONIC_DISEASE"));
-    }
+		then(healthConditionService).should(times(1)).createHealthCondition(any(HealthConditionCreateRequest.class));
+	}
 
-    @DisplayName("when_getAllHealthConditions_then_returns200Ok")
-    @Test
-    void when_getAllHealthConditions_then_returns200Ok() throws Exception {
-        // given
-        HealthCondition healthCondition1 = HealthCondition.builder().name("고혈압").type(HealthConditionType.CHRONIC_DISEASE).build();
-        ReflectionTestUtils.setField(healthCondition1, "id", 1L);
-        HealthCondition healthCondition2 = HealthCondition.builder().name("당뇨").type(HealthConditionType.DIABETES).build();
-        ReflectionTestUtils.setField(healthCondition2, "id", 2L);
-        List<HealthCondition> healthConditions = Arrays.asList(healthCondition1, healthCondition2);
-        when(healthConditionService.getAllHealthConditions()).thenReturn(healthConditions);
+	@Test
+	@DisplayName("건강 상태 단일 조회 API 호출 성공")
+	void getHealthConditionById_success() throws Exception {
+		// Given
+		given(healthConditionService.getHealthConditionById(healthConditionId)).willReturn(healthCondition);
 
-        // when
-        ResultActions actions = mockMvc.perform(get("/api/v1/health-conditions")
-                .contentType(MediaType.APPLICATION_JSON));
+		// When & Then
+		mockMvc.perform(get("/api/v1/health-conditions/{id}", healthConditionId))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.data.name").value("당뇨"));
 
-        // then
-        actions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.length()").value(2))
-                .andExpect(jsonPath("$.data[0].name").value("고혈압"))
-                .andExpect(jsonPath("$.data[1].name").value("당뇨"));
-    }
+		then(healthConditionService).should(times(1)).getHealthConditionById(healthConditionId);
+	}
 
-    @DisplayName("given_HealthConditionIdAndUpdateRequest_when_updateHealthCondition_then_returns200Ok")
-    @Test
-    void given_HealthConditionIdAndUpdateRequest_when_updateHealthCondition_then_returns200Ok() throws Exception {
-        // given
-        Long healthConditionId = 1L;
-        HealthConditionUpdateRequest request = new HealthConditionUpdateRequest("고혈압 (수정)", HealthConditionType.DIABETES);
-        HealthCondition updatedHealthCondition = HealthCondition.builder()
-                .name(request.name())
-                .type(request.type())
-                .build();
-        ReflectionTestUtils.setField(updatedHealthCondition, "id", healthConditionId);
-        when(healthConditionService.updateHealthCondition(eq(healthConditionId), any(HealthConditionUpdateRequest.class))).thenReturn(updatedHealthCondition);
+	@Test
+	@DisplayName("모든 건강 상태 조회 API 호출 성공")
+	void getAllHealthConditions_success() throws Exception {
+		// Given
+		given(healthConditionService.getAllHealthConditions()).willReturn(List.of(healthCondition));
 
-        // when
-        ResultActions actions = mockMvc.perform(put("/api/v1/health-conditions/{id}", healthConditionId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)));
+		// When & Then
+		mockMvc.perform(get("/api/v1/health-conditions"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.data.length()").value(1))
+			.andExpect(jsonPath("$.data[0].name").value("당뇨"));
 
-        // then
-        actions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.name").value("고혈압 (수정)"))
-                .andExpect(jsonPath("$.data.type").value("DIABETES"));
-    }
+		then(healthConditionService).should(times(1)).getAllHealthConditions();
+	}
 
-    @DisplayName("given_HealthConditionId_when_deleteHealthCondition_then_returns204NoContent")
-    @Test
-    void given_HealthConditionId_when_deleteHealthCondition_then_returns204NoContent() throws Exception {
-        // given
-        Long healthConditionId = 1L;
-        doNothing().when(healthConditionService).deleteHealthCondition(healthConditionId);
+	@Test
+	@DisplayName("건강 상태 수정 API 호출 성공")
+	void updateHealthCondition_success() throws Exception {
+		// Given
+		HealthConditionUpdateRequest request = new HealthConditionUpdateRequest("고혈압", HealthConditionType.HYPERTENSION);
 
-        // when
-        ResultActions actions = mockMvc.perform(delete("/api/v1/health-conditions/{id}", healthConditionId)
-                .contentType(MediaType.APPLICATION_JSON));
+		HealthCondition updatedHealthCondition = mock(HealthCondition.class);
+		given(updatedHealthCondition.getId()).willReturn(healthConditionId);
+		given(updatedHealthCondition.getName()).willReturn("고혈압");
+		given(updatedHealthCondition.getType()).willReturn(HealthConditionType.HYPERTENSION);
 
-        // then
-        actions.andExpect(status().isNoContent());
-    }
+		given(healthConditionService.updateHealthCondition(eq(healthConditionId), any(HealthConditionUpdateRequest.class)))
+			.willReturn(updatedHealthCondition);
+
+		// When & Then
+		mockMvc.perform(put("/api/v1/health-conditions/{id}", healthConditionId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.data.name").value("고혈압"))
+			.andExpect(jsonPath("$.data.type").value("HYPERTENSION"));
+
+		then(healthConditionService).should(times(1)).updateHealthCondition(eq(healthConditionId), any(HealthConditionUpdateRequest.class));
+	}
+
+	@Test
+	@DisplayName("건강 상태 삭제 API 호출 성공")
+	void deleteHealthCondition_success() throws Exception {
+		// Given
+
+		// When & Then
+		mockMvc.perform(delete("/api/v1/health-conditions/{id}", healthConditionId))
+			.andExpect(status().isNoContent());
+
+		then(healthConditionService).should(times(1)).deleteHealthCondition(healthConditionId);
+	}
 }

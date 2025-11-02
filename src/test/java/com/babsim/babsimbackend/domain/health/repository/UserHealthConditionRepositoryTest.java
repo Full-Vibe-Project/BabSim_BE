@@ -4,79 +4,69 @@ import com.babsim.babsimbackend.domain.health.entity.HealthCondition;
 import com.babsim.babsimbackend.domain.health.entity.UserHealthCondition;
 import com.babsim.babsimbackend.domain.health.enums.HealthConditionType;
 import com.babsim.babsimbackend.domain.user.entity.User;
-import com.babsim.babsimbackend.domain.user.enums.Gender;
-import com.babsim.babsimbackend.domain.user.enums.GoalType;
+import com.babsim.babsimbackend.domain.user.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@EntityScan(basePackages = {
+	"com.babsim.babsimbackend.domain"
+})
 @DataJpaTest
 @ActiveProfiles("test")
 class UserHealthConditionRepositoryTest {
 
-    @Autowired
-    private UserHealthConditionRepository userHealthConditionRepository;
+	@Autowired
+	private UserHealthConditionRepository userHealthConditionRepository;
 
-    @Autowired
-    private HealthConditionRepository healthConditionRepository;
+	@Autowired
+	private UserRepository userRepository;
 
-    @Autowired
-    private TestEntityManager testEntityManager;
+	@Autowired
+	private HealthConditionRepository healthConditionRepository;
 
-    // Assuming UserRepository exists and can be mocked or used for setup
-    // For simplicity, we'll create a dummy User here.
-    private User createUser(UUID id, String name) {
-        User user = User.builder()
-                .name(name)
-                .gender(Gender.MALE)
-                .age(30)
-                .height(new java.math.BigDecimal("170.0"))
-                .weight(new java.math.BigDecimal("60.0"))
-                .goal(com.babsim.babsimbackend.domain.user.enums.GoalType.WEIGHT_LOSS)
-                .build();
-        ReflectionTestUtils.setField(user, "id", id);
-        // Persist the user before returning
-        return testEntityManager.persistAndFlush(user);
-    }
+	private User user;
+	private HealthCondition healthCondition;
 
-    private HealthCondition createHealthCondition(Long id, String name, HealthConditionType type) {
-        HealthCondition healthCondition = HealthCondition.builder()
-                .name(name)
-                .type(type)
-                .build();
-        ReflectionTestUtils.setField(healthCondition, "id", id);
-        // Persist the health condition before returning
-        return testEntityManager.persistAndFlush(healthCondition);
-    }
+	@BeforeEach
+	void setUp() {
+		user = User.builder()
+			.name("testUser")
+			.build();
+		user = userRepository.save(user);
 
-    @DisplayName("given_UserHealthCondition_when_save_then_success")
-    @Test
-    void given_UserHealthCondition_when_save_then_success() {
-        // given
-        User user = createUser(UUID.randomUUID(), "testUser");
-        HealthCondition healthCondition = createHealthCondition(1L, "고혈압", HealthConditionType.CHRONIC_DISEASE);
+		healthCondition = HealthCondition.builder()
+			.name("당뇨")
+			.type(HealthConditionType.DIABETES)
+			.build();
+		healthCondition = healthConditionRepository.save(healthCondition);
+	}
 
-        UserHealthCondition userHealthCondition = UserHealthCondition.builder()
-                .user(user)
-                .healthCondition(healthCondition)
-                .build();
+	@Test
+	@DisplayName("사용자 건강 상태 저장 및 조회")
+	void saveAndFindById_success() {
+		// Given
+		UserHealthCondition userHealthCondition = UserHealthCondition.builder()
+			.user(user)
+			.healthCondition(healthCondition)
+			.build();
 
-        // when
-        UserHealthCondition savedUserHealthCondition = userHealthConditionRepository.save(userHealthCondition);
+		// When
+		UserHealthCondition savedMapping = userHealthConditionRepository.save(userHealthCondition);
+		Optional<UserHealthCondition> foundMapping = userHealthConditionRepository.findById(savedMapping.getId());
 
-        // then
-        assertThat(savedUserHealthCondition.getId()).isNotNull();
-        assertThat(savedUserHealthCondition.getUser().getId()).isEqualTo(user.getId());
-        assertThat(savedUserHealthCondition.getHealthCondition().getId()).isEqualTo(healthCondition.getId());
-    }
+		// Then
+		assertThat(foundMapping).isPresent();
+		assertThat(foundMapping.get().getId()).isEqualTo(savedMapping.getId());
+		assertThat(foundMapping.get().getUser()).isEqualTo(user);
+		assertThat(foundMapping.get().getHealthCondition()).isEqualTo(healthCondition);
+	}
 }
