@@ -149,3 +149,16 @@
     - `UserHealthConditionService`의 `update` 로직은 임시 주석 처리.
     - `UserHealthCondition` 관련 테스트는 현재 실패 중 (Red Phase).
 - **현재 상태**: `HealthCondition` CRUD는 완료되었으나, `UserHealthCondition`은 `update` 메서드 구현 및 테스트 수정이 필요함.
+
+---
+
+## 🗓️ 2025-11-02
+
+### Health 도메인 CRUD API 구현 및 개선
+- **목표**: `HealthCondition` 및 `UserHealthCondition` 엔티티에 대한 CRUD 기능 구현 및 테스트 코드 작성.
+- **1차 작업 (commit: da70a95)**:
+    - `HealthCondition` 및 `UserHealthCondition`에 대한 Controller, Service, Repository, DTO, Exception 등 기본 구조와 테스트 코드 초안을 구현함.
+- **2차 작업 (commit: 0673036)**:
+    - `UserHealthCondition` 엔티티에 `update` 메서드를 추가하여 수정 로직을 구현함.
+    - `UserHealthConditionService`에 `updateUserHealthCondition` 메서드를 구현하고, 관련 테스트 코드를 보강하여 기능을 완성함.
+- **현재 상태**: `HealthCondition` 및 `UserHealthCondition`의 CRUD 기능과 테스트가 모두 완료됨.
