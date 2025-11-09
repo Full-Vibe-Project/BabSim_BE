@@ -38,7 +38,7 @@
 ### 프로젝트 기획 문서(PRD) 최신화
 - **문서 개정**: 새로운 기획서 내용을 반영하여 `docs/PRD.md` 문서를 전면적으로 개정함 (v1.1).
 - **주요 변경사항**:
-    - 경쟁 서비스 분석, 구체화된 사용자 플로우, 초기 데이터베이스 설계(테이블명 영문화) 등 상세 내용을 추가하여 최신 프로젝트 방향성을 명확히 함.
+    - 경쟁 서비스 분석, 구체화된 사용자 플로우, 초기 데이터베이스 설계(테이블명 영문화 포함) 등 상세 내용을 추가하여 최신 프로젝트 방향성을 명확히 함.
 
 ### Food 도메인 CRUD API 구현 (TDD)
 - **TDD 적용**: `Red-Green-Refactor` 사이클에 따라, 실패하는 테스트를 먼저 작성하고 이를 통과시키는 방식으로 `Food` 도메인의 CRUD API를 구현함.
@@ -152,6 +152,66 @@
 
 ---
 
+- **Prompt**: 현재 PR에서, 팀원의 다른 피드백으로 아래와 같은 의견을 받았어. 이에 대해 너의 의견을 말하고, 수정 사항이 필요하다면 수정해줘. [피드백] 현재 mealService에서 user repository와 food repository를 불러오고 있는데, 추후에 순환 참조의 가능성이 있어보입니다..! 특히 식단의 경우 user와 food 도메인과 함께 로직 처리할께 많을 것 같아서 추가로 MealFacade 클래스를 추가해서 userService, mealService, foodService를 DI하는 방식으로 수정하는 것은 어떨까요?
+- **Result**: ✅ 성공
+- **Details**:
+    1. **퍼사드 패턴 도입**: 팀원의 피드백을 수용하여, 도메인 간 결합도를 낮추고 순환 참조 가능성을 방지하기 위해 `MealFacade`를 도입함.
+    2. **`MealService` 리팩토링**: `UserRepository`, `FoodRepository` 의존성을 제거하고, 외부에서 조회된 엔티티를 파라미터로 받도록 메서드 시그니처를 변경함.
+    3. **`MealFacade` 생성**: `UserService`, `FoodService`, `MealService`를 주입받아 식단 생성/수정 등 복합 로직을 처리하는 `MealFacade`를 생성함.
+    4. **`UserService`, `FoodService` 수정**: 퍼사드에서 엔티티를 직접 사용하기 위해, 각 서비스에 엔티티를 반환하는 조회 메서드(`findUserById`, `findFoodEntityByCode`)를 추가함.
+    5. **`MealController` 수정**: `MealService` 대신 `MealFacade`를 사용하도록 의존성을 변경함.
+    6. **테스트 코드 수정**: 변경된 아키텍처에 맞게 `MealServiceTest`와 `MealControllerTest`를 모두 수정함.
+
+---
+
+## 🗓️ 2025-10-23
+
+### TimescaleDB 통합을 위한 다중 데이터소스 설정
+- **목적**: AI 기반 영양 분석 및 추천 시스템의 시계열 데이터 관리를 위해 TimescaleDB를 통합하고, 기존 MySQL과 함께 다중 데이터소스 환경을 구축함.
+- **주요 변경 사항**: 
+    1.  **데이터소스 속성 리팩토링**: `DatabaseProperties.java`를 `DataSourceProperties.java`로 이름을 변경하고, MySQL 및 TimescaleDB 각각의 연결 정보를 관리할 수 있도록 중첩 클래스 구조로 변경함.
+    2.  **`application.yml` 업데이트**: TimescaleDB 연결 정보에 대한 플레이스홀더를 추가하여 프로필별 설정 파일에서 실제 값을 정의할 수 있도록 함.
+    3.  **JPA 설정 분리**: `JpaConfig.java`의 복잡성을 줄이고 각 데이터소스의 독립성을 보장하기 위해, MySQL 및 TimescaleDB에 대한 JPA 설정을 각각 `MySQLJpaConfig.java`와 `TimescaleDBJpaConfig.java`로 분리함. 각 설정 클래스는 해당 데이터소스의 `DataSource`, `EntityManagerFactory`, `PlatformTransactionManager` 빈을 정의하고, `@EnableJpaRepositories`를 통해 해당 도메인 패키지를 스캔하도록 구성함.
+    4.  **의존성 추가**: `.env` 파일 로딩을 위한 `spring-dotenv` 의존성을 `build.gradle`에 추가함.
+    5.  **문서 추가**: `docs/ai-nutrition-architecture-spec.md` 파일을 추가하여 AI 영양 아키텍처 사양을 문서화함.
+- **결과**: 프로젝트가 TimescaleDB를 포함한 다중 데이터소스 환경을 지원할 수 있는 기반을 마련했으며, JPA 설정의 모듈화 및 유지보수성을 향상시킴.
+
+### TimescaleDB 시계열 데이터 도메인 및 엔티티 추가
+- **목적**: AI 기반 영양 분석 및 추천 시스템의 핵심 기능인 시계열 영양 데이터 관리를 위해 TimescaleDB에 저장될 `NutritionTimeseries` 도메인을 구축함.
+- **주요 변경 사항**:
+    1.  **`timeseries` 패키지 생성**: `com.babsim.babsimbackend.domain` 하위에 `timeseries` 패키지를 생성하여 시계열 데이터 관련 엔티티 및 리포지토리를 관리할 수 있는 구조를 마련함.
+    2.  **`NutritionTimeseries` 엔티티 정의**: `user_id`, `ts`, `energy`, `protein`, `carb`, `fat`, `weight`, `blood_sugar` 필드를 포함하는 `NutritionTimeseries` 엔티티를 정의함. `@CreationTimestamp`를 사용하여 `ts` 필드가 자동으로 생성되도록 설정하고, `@Table(name = "nutrition_timeseries")`를 통해 TimescaleDB의 하이퍼테이블과 매핑될 수 있도록 함.
+    3.  **`NutritionTimeseriesRepository` 생성**: `NutritionTimeseries` 엔티티에 대한 CRUD 작업을 수행할 수 있도록 `JpaRepository`를 상속하는 `NutritionTimeseriesRepository` 인터페이스를 생성함.
+- **결과**: TimescaleDB에 시계열 영양 데이터를 저장하고 관리하기 위한 기본적인 도메인 모델과 데이터 접근 계층이 성공적으로 구축됨.
+
+---
+
+## 🗓️ 2025-10-29
+
+### TimescaleDB 통합: 일일 영양 집계 및 테스트 환경 개선
+
+- **목적**: TimescaleDB 통합의 핵심 기능인 일일 영양 데이터 집계 로직을 구현하고, 다중 데이터소스 환경에서의 테스트 안정성을 확보함.
+- **주요 변경 사항**: 
+    1.  **테스트 환경 개선**:
+        *   `JpaConfig.java`를 수정하여 `test` 프로파일 활성화 시 MySQL 및 TimescaleDB JPA 컨텍스트 모두에 H2 인메모리 데이터베이스를 사용하도록 조건부 빈을 정의함.
+        *   `MySQLJpaConfig.java` 및 `TimescaleDBJpaConfig.java`에 `@Profile("!test")`를 추가하여 실제 데이터베이스 설정이 테스트 환경에서 로드되지 않도록 함.
+        *   `build.gradle`에서 H2 의존성을 `testImplementation`으로 변경하여 테스트 전용으로 관리함.
+        *   `application-test.yml`을 초기 상태로 유지하여 기본 H2 설정을 활용함.
+    2.  **일일 영양 집계 로직 구현**:
+        *   `DailyNutritionSumDto.java`를 정의하여 일일 영양소 합계 쿼리 결과를 위한 DTO를 제공함.
+        *   `MealRepository.java`에 `findDailyNutritionSumByUserIdAndDate` 쿼리 메서드를 추가하여 특정 기간 동안의 사용자별 영양소 합계를 조회할 수 있도록 함.
+        *   `DailyNutritionAggregationService.java`를 리팩토링하여 `MealRepository`를 통해 데이터를 조회하고, `NutritionTimeseriesId`를 사용하여 `NutritionTimeseries` 엔티티를 저장하는 `aggregateAndSave` 메서드를 구현함.
+    3.  **뷰 기반 일일 영양 요약 엔티티 추가**:
+        *   `DailyNutritionSummaryId.java`를 정의하여 `DailyNutritionSummary` 뷰 엔티티의 복합 키를 제공함.
+        *   `DailyNutritionSummary.java` 엔티티를 `@Subselect` 어노테이션을 사용하여 MySQL의 `v_daily_nutrition` 뷰에 매핑하고, 읽기 전용으로 설정함.
+        *   `DailyNutritionSummaryRepository.java`를 정의하여 해당 뷰 엔티티에 대한 데이터 접근을 가능하게 함.
+    4.  **일일 영양 집계 스케줄러 구현**:
+        *   `DailyAggregationScheduler.java`를 구현하여 `@Scheduled` 어노테이션을 통해 매일 새벽 1시에 모든 사용자에 대해 전날의 영양 데이터를 집계하고 `DailyNutritionAggregationService`를 호출하도록 함.
+        *   `DailyAggregationSchedulerTest.java`를 작성하여 스케줄러의 동작을 단위 테스트함.
+    5.  **`NutritionTimeseries` 엔티티 리팩토링**: `NutritionTimeseries` 엔티티의 ID를 `NutritionTimeseriesId` 복합 키로 변경하여 TimescaleDB의 시계열 데이터 모델에 더 적합하도록 개선함.
+- **결과**: TimescaleDB 통합의 핵심 기능인 일일 영양 데이터 집계 로직이 구현되었으며, 다중 데이터소스 환경에서의 테스트 안정성이 확보됨. 이를 통해 AI 기반 영양 분석 및 추천 시스템의 데이터 기반이 더욱 견고해짐.
+
+
 ## 🗓️ 2025-11-02
 
 ### Health 도메인 CRUD API 구현 및 개선
@@ -173,3 +233,11 @@
 - **Result**: ❌ 실패 -> ✅ 성공
 - **Details**: `HealthConditionResponse.java` 및 `UserHealthConditionResponse.java` DTO 파일에 `@Schema` 어노테이션을 추가하는 과정에서 실수로 삭제되었던 `from` 메소드와 `UserHealthConditionResponse`의 `healthConditionName`, `healthConditionType` 필드를 복원하고, `@Schema`
   어노테이션을 올바르게 재적용했습니다.
+- **Prompt**: PR을 올리고, 팀원의 피드백으로 '현재 diet 디렉토리 내의 dto 형식이 class인데, record로 사용하는 것이 어떨지'에 대한 의견을 받았어. 이에 대해 너의 의견을 말하고, 수정 사항이 필요하다면 수정해줘.
+- **Result**: ✅ 성공
+- **Details**:
+    1. 팀원의 피드백을 수용하여 `diet` 도메인의 모든 DTO(`Food...`, `Meal...`)를 `class`에서 `record`로 리팩토링함.
+    2. `record` 변경에 따라, DTO를 사용하는 모든 관련 코드(엔티티, 서비스, 테스트)의 필드 접근 방식을 `getXxx()`에서 `xxx()`로 수정함.
+    3. 이를 통해 코드의 간결성, 불변성을 확보하고 프로젝트 전체의 DTO 컨벤션을 통일함.
+
+---

@@ -6,7 +6,7 @@
 spring:
   # ===============================
   # =     Database (H2 In-Memory)   =
-  # ===============================
+# ===============================
   datasource:
     driver-class-name: org.h2.Driver
     # H2 인메모리 데이터베이스를 사용합니다. DB 이름은 babsim_test로 지정합니다.
