@@ -37,4 +37,8 @@ public class HealthCondition extends BaseEntity {
         this.name = name;
         this.type = type;
     }
+	public void update(String name, HealthConditionType type) {
+        this.name = name;
+        this.type = type;
+    }
 }

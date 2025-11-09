@@ -45,4 +45,9 @@ public class UserHealthCondition extends BaseEntity {
         this.user = user;
         this.healthCondition = healthCondition;
     }
+
+	public void update(User user, HealthCondition healthCondition) {
+		this.user = user;
+		this.healthCondition = healthCondition;
+	}
 }

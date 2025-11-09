@@ -123,16 +123,34 @@
 - **계층별 구현**: Repository, Service, Controller 각 계층에 대한 테스트 코드와 구현체를 모두 작성하여 기능의 안정성을 확보함.
 - **엔티티 및 DTO 설계**: `Meal`, `MealFood` 엔티티와 관련 DTO(`MealCreateRequest`, `MealUpdateRequest`, `MealResponse`)를 설계하여 식단 데이터 구조를 정의함.
 
-- **Prompt**: PR을 올리고, 팀원의 피드백으로 '현재 diet 디렉토리 내의 dto 형식이 class인데, record로 사용하는 것이 어떨지'에 대한 의견을 받았어. 이에 대해 너의 의견을 말하고, 수정 사항이 필요하다면 수정해줘.
-- **Result**: ✅ 성공
-- **Details**:
-    1. 팀원의 피드백을 수용하여 `diet` 도메인의 모든 DTO(`Food...`, `Meal...`)를 `class`에서 `record`로 리팩토링함.
-    2. `record` 변경에 따라, DTO를 사용하는 모든 관련 코드(엔티티, 서비스, 테스트)의 필드 접근 방식을 `getXxx()`에서 `xxx()`로 수정함.
-    3. 이를 통해 코드의 간결성, 불변성을 확보하고 프로젝트 전체의 DTO 컨벤션을 통일함.
 
 ---
-
 ## 🗓️ 2025-10-22
+
+### 1. Meal 도메인 퍼사드 패턴 도입
+- **목표**: `MealService`의 `UserRepository`, `FoodRepository` 직접 의존성을 제거하고, 도메인 간 결합도를 낮추기 위해 `MealFacade`를 도입.
+- **주요 변경 사항**:
+    - `MealFacade` 클래스 생성 및 `UserService`, `FoodService`, `MealService` 주입.
+    - `MealService`에서 `UserRepository`, `FoodRepository` 의존성 제거 및 메서드 시그니처 변경.
+    - `UserService`, `FoodService`에 엔티티를 반환하는 조회 메서드 추가.
+    - `MealController`가 `MealService` 대신 `MealFacade`를 사용하도록 변경.
+    - 관련 테스트 코드(`MealServiceTest`, `MealControllerTest`) 수정.
+
+### 2. Health 도메인 CRUD API 구현 (TDD)
+- **목표**: `HealthCondition` 및 `UserHealthCondition` 엔티티에 대한 CRUD 기능 구현 및 테스트 코드 작성.
+- **HealthCondition 구현**:
+    - `HealthConditionType` Enum 확장 (`CHRONIC_DISEASE` 추가).
+    - `HealthConditionRepository`, `HealthConditionService`, `HealthConditionController` 및 관련 DTO, 예외 클래스 구현.
+    - `HealthCondition` 엔티티에 `update` 메서드 추가 및 서비스 로직 반영.
+    - 모든 `HealthCondition` 관련 테스트 통과 확인.
+- **UserHealthCondition 구현**:
+    - `UserHealthConditionRepository`, `UserHealthConditionService`, `UserHealthConditionController` 및 관련 DTO, 예외 클래스 구현.
+    - `UserHealthCondition` 엔티티의 `update` 메서드 추가 시도 중 도구 문제 발생으로 보류.
+    - `UserHealthConditionService`의 `update` 로직은 임시 주석 처리.
+    - `UserHealthCondition` 관련 테스트는 현재 실패 중 (Red Phase).
+- **현재 상태**: `HealthCondition` CRUD는 완료되었으나, `UserHealthCondition`은 `update` 메서드 구현 및 테스트 수정이 필요함.
+
+---
 
 - **Prompt**: 현재 PR에서, 팀원의 다른 피드백으로 아래와 같은 의견을 받았어. 이에 대해 너의 의견을 말하고, 수정 사항이 필요하다면 수정해줘. [피드백] 현재 mealService에서 user repository와 food repository를 불러오고 있는데, 추후에 순환 참조의 가능성이 있어보입니다..! 특히 식단의 경우 user와 food 도메인과 함께 로직 처리할께 많을 것 같아서 추가로 MealFacade 클래스를 추가해서 userService, mealService, foodService를 DI하는 방식으로 수정하는 것은 어떨까요?
 - **Result**: ✅ 성공
@@ -192,3 +210,34 @@
         *   `DailyAggregationSchedulerTest.java`를 작성하여 스케줄러의 동작을 단위 테스트함.
     5.  **`NutritionTimeseries` 엔티티 리팩토링**: `NutritionTimeseries` 엔티티의 ID를 `NutritionTimeseriesId` 복합 키로 변경하여 TimescaleDB의 시계열 데이터 모델에 더 적합하도록 개선함.
 - **결과**: TimescaleDB 통합의 핵심 기능인 일일 영양 데이터 집계 로직이 구현되었으며, 다중 데이터소스 환경에서의 테스트 안정성이 확보됨. 이를 통해 AI 기반 영양 분석 및 추천 시스템의 데이터 기반이 더욱 견고해짐.
+
+
+## 🗓️ 2025-11-02
+
+### Health 도메인 CRUD API 구현 및 개선
+- **목표**: `HealthCondition` 및 `UserHealthCondition` 엔티티에 대한 CRUD 기능 구현 및 테스트 코드 작성.
+- **1차 작업 (commit: da70a95)**:
+    - `HealthCondition` 및 `UserHealthCondition`에 대한 Controller, Service, Repository, DTO, Exception 등 기본 구조와 테스트 코드 초안을 구현함.
+- **2차 작업 (commit: 0673036)**:
+    - `UserHealthCondition` 엔티티에 `update` 메서드를 추가하여 수정 로직을 구현함.
+    - `UserHealthConditionService`에 `updateUserHealthCondition` 메서드를 구현하고, 관련 테스트 코드를 보강하여 기능을 완성함.
+- **현재 상태**: `HealthCondition` 및 `UserHealthCondition`의 CRUD 기능과 테스트가 모두 완료됨.
+
+## 🗓️ 2025-11-09
+
+- **Prompt**: "PROMPTLOG.md 및 record.md 파일 내용 실수로 덮어쓰기 및 복구"
+- **Result**: ❌ 실패 -> ✅ 성공
+- **Details**: `PROMPTLOG.md` 및 `record.md` 파일에 새로운 내용을 추가하는 과정에서 기존 내용을 덮어쓰는 실수를 저질렀습니다. `git checkout` 명령어를 사용하여 두 파일을 이전 커밋 상태로 복구했습니다.
+
+- **Prompt**: "Health 도메인 DTO Swagger 예시 추가 중 `from` 메소드 및 필드 삭제 오류 수정"
+- **Result**: ❌ 실패 -> ✅ 성공
+- **Details**: `HealthConditionResponse.java` 및 `UserHealthConditionResponse.java` DTO 파일에 `@Schema` 어노테이션을 추가하는 과정에서 실수로 삭제되었던 `from` 메소드와 `UserHealthConditionResponse`의 `healthConditionName`, `healthConditionType` 필드를 복원하고, `@Schema`
+  어노테이션을 올바르게 재적용했습니다.
+- **Prompt**: PR을 올리고, 팀원의 피드백으로 '현재 diet 디렉토리 내의 dto 형식이 class인데, record로 사용하는 것이 어떨지'에 대한 의견을 받았어. 이에 대해 너의 의견을 말하고, 수정 사항이 필요하다면 수정해줘.
+- **Result**: ✅ 성공
+- **Details**:
+    1. 팀원의 피드백을 수용하여 `diet` 도메인의 모든 DTO(`Food...`, `Meal...`)를 `class`에서 `record`로 리팩토링함.
+    2. `record` 변경에 따라, DTO를 사용하는 모든 관련 코드(엔티티, 서비스, 테스트)의 필드 접근 방식을 `getXxx()`에서 `xxx()`로 수정함.
+    3. 이를 통해 코드의 간결성, 불변성을 확보하고 프로젝트 전체의 DTO 컨벤션을 통일함.
+
+---
