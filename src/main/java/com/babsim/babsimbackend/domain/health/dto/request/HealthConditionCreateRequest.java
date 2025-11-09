@@ -1,13 +1,13 @@
 package com.babsim.babsimbackend.domain.health.dto.request;
 
 import com.babsim.babsimbackend.domain.health.enums.HealthConditionType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 public record HealthConditionCreateRequest(
-        @NotBlank(message = "건강 상태 이름은 필수입니다.")
-        String name,
-        @NotNull(message = "건강 상태 유형은 필수입니다.")
-        HealthConditionType type
+    @Schema(description = "건강 상태 이름", example = "당뇨")
+    @NotBlank String name,
+    @Schema(description = "건강 상태 타입", example = "DIABETES")
+    HealthConditionType type
 ) {
 }
