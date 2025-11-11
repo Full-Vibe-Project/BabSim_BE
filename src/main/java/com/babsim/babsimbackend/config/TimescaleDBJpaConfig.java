@@ -19,7 +19,7 @@ import java.util.HashMap;
 @Profile("!test")
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "com.babsim.babsimbackend.timeseries", // TimescaleDB 엔티티 패키지
+        basePackages = "com.babsim.babsimbackend.domain.timeseries", // TimescaleDB 엔티티 및 리포지토리 패키지
         entityManagerFactoryRef = "timescaledbEntityManagerFactory",
         transactionManagerRef = "timescaledbTransactionManager"
 )
@@ -30,7 +30,7 @@ public class TimescaleDBJpaConfig {
             @Qualifier("timescaledbDataSource") DataSource timescaledbDataSource) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(timescaledbDataSource);
-        em.setPackagesToScan("com.babsim.babsimbackend.timeseries"); // TimescaleDB 엔티티 패키지
+        em.setPackagesToScan("com.babsim.babsimbackend.domain.timeseries"); // TimescaleDB 엔티티 패키지
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);

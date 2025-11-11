@@ -24,18 +24,9 @@ public class MealFacade {
     private final MealService mealService;
 
     @Transactional
-    public MealResponse createMeal(MealCreateRequest request) {
-        User user = userService.findUserById(request.userId());
-
-        List<Food> foods = request.foods().stream()
-            .map(foodItem -> foodService.findFoodEntityByCode(foodItem.foodCode()))
-            .collect(Collectors.toList());
-
-        List<Integer> quantities = request.foods().stream()
-            .map(MealCreateRequest.FoodItem::quantity)
-            .collect(Collectors.toList());
-
-        return mealService.createMeal(user, request.mealType(), request.imageUrl(), foods, quantities);
+    public Long createMeal(MealCreateRequest request, String userId) {
+        User user = userService.findUserById(UUID.fromString(userId));
+        return foodService.createMeal(request, user);
     }
 
     @Transactional(readOnly = true)
