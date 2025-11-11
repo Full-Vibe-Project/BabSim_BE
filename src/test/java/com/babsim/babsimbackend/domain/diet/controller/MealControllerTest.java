@@ -46,20 +46,17 @@ class MealControllerTest {
     @DisplayName("식단 생성을 요청하면 201 Created 상태와 Location 헤더를 반환한다.")
     void givenMealCreateRequest_whenPostMeal_thenReturns201AndLocationHeader() throws Exception {
         // given
-        UUID userId = UUID.randomUUID();
-        MealCreateRequest.FoodItem foodItem = new MealCreateRequest.FoodItem("D000001", 1);
-        MealCreateRequest request = new MealCreateRequest(userId, MealType.LUNCH, "http://image.com/lunch.jpg", List.of(foodItem));
+        MealCreateRequest.SelectedFood selectedFood = new MealCreateRequest.SelectedFood("D000001", 1);
+        MealCreateRequest request = new MealCreateRequest(MealType.LUNCH, "http://image.com/lunch.jpg", List.of(selectedFood));
 
-        MealResponse responseDto = new MealResponse(1L, MealType.LUNCH, "http://image.com/lunch.jpg", LocalDateTime.now(), Collections.emptyList());
-
-        given(mealFacade.createMeal(any(MealCreateRequest.class))).willReturn(responseDto);
+        given(mealFacade.createMeal(any(MealCreateRequest.class), any(String.class))).willReturn(1L);
 
         // when & then
         mockMvc.perform(post("/api/v1/meals")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isCreated())
-            .andExpect(header().exists("Location"));
+            .andExpect(header().string("Location", "/api/v1/meals/1"));
     }
 
     @Test

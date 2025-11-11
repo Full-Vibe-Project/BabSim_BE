@@ -1,18 +1,31 @@
 package com.babsim.babsimbackend.domain.diet.dto.request;
 
 import com.babsim.babsimbackend.domain.diet.enums.MealType;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
-import java.util.UUID;
 
-// AI 생성: 식단 생성을 위한 요청 데이터를 담는 DTO (record로 리팩토링)
+@Schema(description = "식단 생성 요청 DTO")
 public record MealCreateRequest(
-    UUID userId,
+    @NotNull
+    @Schema(description = "식사 유형 (BREAKFAST, LUNCH, DINNER, SNACK)")
     MealType mealType,
+
+    @Schema(description = "식단 이미지 URL")
     String imageUrl,
-    List<FoodItem> foods
+
+    @NotEmpty
+    @Schema(description = "식단을 구성하는 음식 목록")
+    List<SelectedFood> foods
 ) {
-    public record FoodItem(
+    @Schema(description = "사용자가 선택한 음식 정보")
+    public record SelectedFood(
+        @Schema(description = "음식 코드")
         String foodCode,
+
+        @Schema(description = "수량")
         Integer quantity
-    ) {}
+    ) {
+    }
 }

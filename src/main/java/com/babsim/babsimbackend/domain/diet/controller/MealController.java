@@ -6,6 +6,7 @@ import com.babsim.babsimbackend.domain.diet.dto.response.MealResponse;
 import com.babsim.babsimbackend.domain.diet.service.MealFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +26,11 @@ public class MealController {
 
     @Operation(summary = "식단 정보 생성", description = "새로운 식단 정보를 시스템에 등록합니다.")
     @PostMapping
-    public ResponseEntity<MealResponse> createMeal(@RequestBody MealCreateRequest request) {
-        MealResponse response = mealFacade.createMeal(request);
-        return ResponseEntity.created(URI.create("/api/v1/meals/" + response.id()))
-            .body(response);
+    public ResponseEntity<Void> createMeal(@Valid @RequestBody MealCreateRequest request) {
+        // AI-Refactor: 현재는 userId를 하드코딩하지만, 향후 Spring Security Context에서 가져와야 함
+        String userId = "c2a8c3e3-5e6f-4b8a-8f4a-9e4e8c6f2b3a"; // 임시 UUID
+        Long mealId = mealFacade.createMeal(request, userId);
+        return ResponseEntity.created(URI.create("/api/v1/meals/" + mealId)).build();
     }
 
     @Operation(summary = "사용자 식단 목록 조회", description = "특정 사용자의 모든 식단 정보를 조회합니다.")

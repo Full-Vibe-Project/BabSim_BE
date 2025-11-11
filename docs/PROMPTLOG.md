@@ -315,4 +315,55 @@
 
 - **Prompt**: 이제부터 앞으로의 프롬프트 작업 성공/실패 내역에 대해 docs/PROMPTLOG.md에 작성해주고, docs/record.md에도 중요한 내용이 있으면 계속해서 작성해줘.
 - **Result**: ✅ 성공
-- **Details**: 로깅 규칙 설정 및 확인. 앞으로 모든 프롬프트 작업에 대해 `docs/PROMPTLOG.md`와 `docs/record.md`에 `ai-guidelines/05-logging.md` 규칙에 따라 기록을 시작함.
+- **Details**: 로깅 규칙 설정 및 확인. 앞으로 모든 프롬프트 작업에 대해 `docs/PROMPTLOG.md`와 `record.md`에 `ai-guidelines/05-logging.md` 규칙에 따라 기록을 시작함.
+
+---
+
+## 🗓️ 2025-11-04
+
+- **Prompt**: 이제, 현재의 새로운 기능 브랜치에서는 PRD 기준 "4.2. 식단 기록" 부분을 개발할거야. 음식 사진 업로드 시, AI가 자동 인식하고 영양소를 추출할 수 있도록 적절한 모델 및 영양 성분 DB를 선택하고, 연결하는 과정을 포함해 API 개발까지 진행해줘.
+- **Result**: ✅ 성공
+- **Details**:
+    1. **기능 분석 및 설계**: PRD의 "4.2. 식단 기록" 요구사항을 분석하고, S3를 이용한 이미지 업로드, Google Vision AI를 이용한 음식 인식, DB를 통한 영양소 조회의 3단계 프로세스를 설계함.
+    2. **DTO 생성**: `FoodImageUploadResponse`, `FoodAnalyzeRequest`, `FoodAnalyzeResponse`, `MealCreateRequest` DTO를 `domain/diet/dto`에 생성함.
+    3. **API 엔드포인트 구현**: `FoodController`에 이미지 업로드 (`/foods/image`), 이미지 분석 (`/foods/analyze`), 식단 생성 (`/meals`) API를 구현함.
+    4. **서비스 및 인프라 구현**: `FoodService`에 비즈니스 로직을 구현하고, 외부 시스템(S3, Vision AI) 연동을 위한 `S3Uploader`, `FoodVisionClient` 인터페이스와 Mock 구현체를 생성하여 계층 간 의존성을 명확히 함.
+    5. **Repository 수정**: `FoodRepository`에 `findByName` 메서드를 추가하여 AI가 인식한 음식 이름으로 DB를 조회할 수 있도록 함.
+
+---
+
+## 🗓️ 2025-11-11
+
+- **Prompt**: 현재 수정된 dto 구조를 확인하고, 방금 생성한 dto들이 각각 request와 response 디렉토리 내부에 분류되어 들어가도록 경로를 수정해줘.
+- **Result**: ✅ 성공
+- **Details**:
+    1. **DTO 재분류**: `FoodImageUploadResponse`, `FoodAnalyzeRequest`, `FoodAnalyzeResponse`, `MealCreateRequest` DTO 파일들을 `domain/diet/dto` 하위의 `request` 및 `response` 디렉토리로 이동함.
+    2. **Import 구문 수정**: DTO 파일 경로 변경에 따라 `FoodController`와 `FoodService`의 `import` 구문을 모두 수정하여 코드 정합성을 맞춤.
+
+- **Prompt**: 이제 방금 개발한 기능에 대한 테스트 코드를 작성해줘.
+- **Result**: ✅ 성공
+- **Details**:
+    1. **`FoodServiceTest` 확장**: `FoodService`의 단위 테스트에 `uploadFoodImage`, `analyzeFoodImage`, `createMeal` 메서드에 대한 테스트 케이스를 추가함. `S3Uploader`, `FoodVisionClient` 등 외부 의존성은 Mocking하여 서비스 로직을 검증함.
+    2. **`FoodControllerTest` 확장**: `FoodController`의 통합 테스트에 `/api/v1/foods/image`, `/api/v1/foods/analyze` 엔드포인트에 대한 테스트 케이스를 추가함. `MockMvc`와 `multipart`를 사용하여 실제 API 호출을 시뮬레이션하고 응답을 검증함.
+
+- **Prompt**: 아래와 같이 MealFoodRepository가 없다고 하는데, 문제를 해결해줘.
+- **Result**: ✅ 성공
+- **Details**:
+    1. **문제 분석**: `FoodService`에서 `MealFoodRepository`를 주입받고 있으나, 해당 리포지토리 인터페이스 파일이 생성되지 않아 발생한 컴파일 오류임을 확인함.
+    2. **문제 해결**: `domain/diet/repository` 패키지에 `MealFoodRepository.java` 인터페이스를 생성하여 문제를 해결함.
+
+- **Prompt**: 이제 테스트코드에서 발생하는 아래 오류들을 정정해줘.
+- **Result**: ✅ 성공
+- **Details**:
+    1. **문제 분석**: `record` 타입으로 DTO를 리팩토링하면서 발생한 빌더 패턴 호출 오류, 메서드 시그니처 불일치, 잘못된 변수명 사용 등 다수의 컴파일 오류를 분석함.
+    2. **문제 해결**:
+        - `FoodControllerTest`에서 `record` DTO 생성 시 `builder()` 대신 `new` 키워드를 사용하도록 수정함.
+        - `MealControllerTest`에서 `MealCreateRequest`의 내부 클래스 이름을 `FoodItem`에서 `SelectedFood`로 수정하고, `mealFacade.createMeal` Mocking 시 인자 개수를 맞춤.
+        - `FoodServiceTest`에서 `Meal` 빌더의 `id()` 호출을 제거하고 `ReflectionTestUtils`를 사용하도록 변경했으며, `createMeal` 호출 시 `User` 객체를 전달하도록 수정함.
+        - 모든 테스트 코드의 컴파일 오류를 최종적으로 해결함.
+
+- **Prompt**: 현재 개발한 dto들을 record 타입으로 리팩토링해줘.
+- **Result**: ✅ 성공
+- **Details**:
+    1. **DTO 리팩토링**: `FoodImageUploadResponse`, `FoodAnalyzeRequest`, `FoodAnalyzeResponse`, `MealCreateRequest` DTO를 `class`에서 `record` 타입으로 변경하여 코드 간결성과 불변성을 확보함.
+    2. **관련 코드 수정**: `record` 변경에 따라, 해당 DTO를 사용하는 `FoodService`, `FoodServiceTest` 등에서 필드 접근 방식을 `getXxx()`에서 `xxx()`로 모두 수정함.

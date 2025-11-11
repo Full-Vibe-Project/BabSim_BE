@@ -1,8 +1,11 @@
 package com.babsim.babsimbackend.domain.diet.controller;
 
+import com.babsim.babsimbackend.domain.diet.dto.request.FoodAnalyzeRequest;
 import com.babsim.babsimbackend.domain.diet.dto.request.FoodCreateRequest;
-import com.babsim.babsimbackend.domain.diet.dto.response.FoodResponse;
 import com.babsim.babsimbackend.domain.diet.dto.request.FoodUpdateRequest;
+import com.babsim.babsimbackend.domain.diet.dto.response.FoodAnalyzeResponse;
+import com.babsim.babsimbackend.domain.diet.dto.response.FoodImageUploadResponse;
+import com.babsim.babsimbackend.domain.diet.dto.response.FoodResponse;
 import com.babsim.babsimbackend.domain.diet.service.FoodService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +15,10 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -35,6 +41,36 @@ class FoodControllerTest {
 
     @MockBean
     private FoodService foodService;
+
+    @Test
+    @DisplayName("음식 사진을 업로드하면 200 OK와 함께 이미지 URL을 반환한다.")
+    void givenFoodImage_whenUploadFoodImage_thenReturns200AndImageUrl() throws Exception {
+        // given
+        MockMultipartFile mockFile = new MockMultipartFile("foodImage", "test.jpg", "image/jpeg", "test image".getBytes());
+        FoodImageUploadResponse response = new FoodImageUploadResponse("s3-url");
+        given(foodService.uploadFoodImage(any())).willReturn(response);
+
+        // when & then
+        mockMvc.perform(multipart("/api/v1/foods/image")
+                .file(mockFile))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.imageUrl").value("s3-url"));
+    }
+
+    @Test
+    @DisplayName("이미지 URL로 음식 분석을 요청하면 200 OK와 함께 분석 결과를 반환한다.")
+    void givenImageUrl_whenAnalyzeFoodImage_thenReturns200AndAnalysisResult() throws Exception {
+        // given
+        FoodAnalyzeRequest request = new FoodAnalyzeRequest("s3-url");
+        FoodAnalyzeResponse response = new FoodAnalyzeResponse(Collections.emptyList());
+        given(foodService.analyzeFoodImage(any())).willReturn(response);
+
+        // when & then
+        mockMvc.perform(post("/api/v1/foods/analyze")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk());
+    }
 
     @Test
     @DisplayName("음식 생성을 요청하면 201 Created 상태와 함께 생성된 음식 정보를 반환한다.")
